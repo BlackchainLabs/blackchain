@@ -1,0 +1,13 @@
+[profile.default]
+src = "src"
+out = "out"
+cache_path = "cache"
+# OpenZeppelin v5.7.0 (submodule at repo root lib/openzeppelin-contracts).
+# Remapping is relative to this foundry project root (smart-contracts/vesting).
+# allow_paths is needed because the remapped files live outside the project
+# root (solc otherwise rejects them as "outside of allowed directories").
+remappings = [
+    "@openzeppelin/contracts/=../../lib/openzeppelin-contracts/contracts/"
+]
+allow_paths = ["../../lib/openzeppelin-contracts"]
+solc = "0.8.20"

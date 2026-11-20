@@ -1,0 +1,74 @@
+# BLACKCHAIN — Devnet identitas BKC (chain 20261120, denom abkc) — bukti blok pertama + EVM live
+# Tanggal: 2026-11-20 (UTC ~15:06-15:13, WIB ~22:06-22:13)
+# Binary: workspace/blackchain/build/blackchaind-sdk54-bkc (Cosmos SDK v0.54.5, Cosmos EVM v0.7.4)
+#   + app.evmChainID = 20261120, DefaultBondDenom = "abkc", flag --evm.evm-chain-id
+#     default 20261120 (commands.go blackchainStartCmd; perbaikan F23)
+# Home:   workspace/blackchain/devnet-data-bkc/cosmos
+# Setup:  scripts/setup-bkc-devnet.sh (init -> keys -> genesis abkc -> gentx -> collect -> validate -> config)
+# Ports:  CometBFT RPC 127.0.0.1:26677, P2P 127.0.0.1:26676, gRPC 127.0.0.1:9102,
+#         REST API 127.0.0.1:1328, pprof 127.0.0.1:6071,
+#         EVM JSON-RPC 127.0.0.1:8555, WS 127.0.0.1:8556
+#         (port digeser karena devnet lama masih jalan: SDK54 26667/8545, SDK55 26657)
+# Start:  blackchaind-sdk54-bkc start --home <home> --minimum-gas-prices 0abkc
+#         --rpc.laddr tcp://127.0.0.1:26677 --p2p.laddr tcp://127.0.0.1:26676
+#         --grpc.address 127.0.0.1:9102 --rpc.pprof_laddr 127.0.0.1:6071
+#         --json-rpc.enable=true --json-rpc.address 127.0.0.1:8555
+#         --json-rpc.ws-address 127.0.0.1:8556
+#         (+ config.toml mempool.type="app" untuk mempool Krakatoa; app.toml [evm] evm-chain-id=20261120)
+# Log:    workspace/blackchain/devnet-data-bkc/cosmos-node.log
+# PID saat bukti dicatat: 21664 (restart bersih kedua; node pertama 19398 dimatikan
+#   setelah perbaikan F23, node 21062 dimatikan sebelum reset data F26)
+
+## Genesis (terverifikasi sebelum start)
+# validate-genesis: "File at .../config/genesis.json is a valid genesis file"
+# chain_id: blackchain_20261120-1
+# app_state berisi: evm + feemarket
+# evm params: evm_denom "abkc", extended_denom "abkc"
+# staking: bond_denom "abkc", max_validators 100, min_commission_rate 0.05, unbonding 1814400s
+# mint: mint_denom "abkc", inflasi 0 (minter + max/min/rate-change 0), max_supply 10^27 abkc (= 1 miliar BKC),
+#   blocks_per_year 6307200 (5 detik/blok)
+# slashing: window 100, min_signed 0.5, downtime_jail 600s, slash double-sign 0.05, downtime 0.01
+# gov: min_deposit 10 BKC (10^19 abkc), expedited_min_deposit 50 BKC
+# bank denom_metadata: abkc (exponent 0) / BKC (exponent 18), display BKC
+# bank balances: validator cosmos addr 10^24 abkc (1.000.000 BKC) + validator ETH addr 10^24 abkc;
+#   supply abkc 2x10^24
+# auth accounts: validator (secp256k1) + ETH addr (ethsecp256k1 pubkey, account_number 1)
+#   -> akun auth untuk alamat ETH WAJIB ada (F17 di devnet lama): StateDB melihat saldo 0 bila tidak ada.
+
+## Blok pertama (restart bersih, 2026-11-20 15:12 UTC)
+# curl http://127.0.0.1:26677/block?height=1
+# height: 1, time: 2026-11-20T15:12:15.894461295Z
+# hash: DFB90E10D5C01896BD31C7D278371F925C4FCFF4FB990F60C3766F9E1E08CC08
+# num_txs: 0, chain_id: blackchain_20261120-1
+
+## EVM JSON-RPC live (2026-11-20 ~15:12 UTC)
+# curl -X POST http://127.0.0.1:8555 {"method":"eth_chainId"}    -> {"result":"0x1352900"} (= 20261120)
+# curl -X POST http://127.0.0.1:8555 {"method":"eth_blockNumber"} -> cocok dengan height CometBFT
+# curl -X POST http://127.0.0.1:8555 {"method":"eth_getBalance","params":["0x8077a7AaFC3E94DFC7C961daBCb9040EfAfd3305","latest"]}
+#   -> {"result":"0xd3c21bcecceda1000000"} (= 10^24 wei = 10^24 abkc = 1.000.000 BKC)
+
+## Transfer EVM pertama di identitas BKC (BUKTI UTAMA) — 2026-11-20 ~15:12 UTC
+# Pengirim:  0x8077a7AaFC3E94DFC7C961daBCb9040EfAfd3305 (alamat ETH kunci validator BARU devnet BKC)
+# Penerima:  0x17Bd1388b04C5321f49aB14692F228cdB4d121cd (akun baru sekali pakai)
+# Nilai: 1.000.000 wei (= 1.000.000 abkc), gas 21000, gasPrice 753.662.109 wei
+# tx hash: 0x2ca8d80e229f4228b72208884abcbcf3bd676626838c5b1ba7d9e60f3de37ede
+# receipt: blockNumber 0x4 (4), status 0x1 (sukses), gasUsed 0x5208 (21000)
+#   from 0x8077a7aafc3e94dfc7c961dabcb9040efafd3305
+#   to   0x17bd1388b04c5321f49ab14692f228cdb4d121cd
+# saldo pengirim:  10^24 -> 999999999984173094711000 wei (delta -15.826.905.289.000 = 10^6 nilai + 21000*753.662.109 gas)
+# saldo penerima:  0 -> 1.000.000 wei (delta persis +1.000.000)
+# Skrip tes: /tmp/bkc-transfer-test.py (salinan evm-transfer-test.py dengan RPC 8555 + chain 20261120)
+#   Kunci privat validator HANYA dipakai transient via env (keys export --unsafe -y),
+#   tidak ditulis ke file/log.
+# BUKTI SEBELUM restart bersih (identitas sama, genesis sama kecuali parameter
+# validator final; node lama dimatikan F26): tx 0x77efcb7b351c22970cabeca2b4f17b0d6d2e7b9bb2ad24d294b6eca833594c07,
+#   blok 46, status 0x1, gas 21000, pengirim 0xd27361081ff701c7fe148d86a5ace83e66d2a20f,
+#   penerima 0x2ec9d40eb404d6217e0e8005306fbd819d412ecf, nilai 1.000.000 wei (delta penerima persis).
+
+## Catatan
+# - Ini devnet lokal Cosmos SDK + Cosmos EVM (x/vm + x/feemarket + mempool Krakatoa + JSON-RPC).
+# - Semantik saldo EVM: 1 abkc (base) = 1 wei; 1 BKC display = 10^18 abkc.
+# - Devnet lama (262144/stake, port 8545/26667, PID 3219) tetap jalan sebagai arsip Jalur A.
+# - Belum ada smart contract di devnet BKC ini (kontrak vesting masih tahap spec/kode/test),
+#   belum ada TPS terukur di chain ini (benchmark menyusul di docs/09-benchmark-tps.md),
+#   bukan testnet/mainnet.

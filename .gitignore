@@ -39,3 +39,7 @@ seed*
 .DS_Store
 .idea/
 .vscode/
+
+# Foundry build artifacts
+smart-contracts/vesting/cache/
+smart-contracts/vesting/out/
