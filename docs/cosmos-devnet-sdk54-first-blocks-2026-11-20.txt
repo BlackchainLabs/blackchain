@@ -1,39 +1,64 @@
-# BLACKCHAIN — Devnet SDK 0.54.5 + Cosmos EVM v0.7.4 — bukti blok pertama
-# Tanggal: 2026-11-20 (UTC 12:57, WIB 19:57)
+# BLACKCHAIN — Devnet SDK 0.54.5 + Cosmos EVM v0.7.4 — bukti blok pertama + EVM live
+# Tanggal: 2026-11-20 (UTC ~13:30-13:50, WIB ~20:30-20:50)
 # Binary: workspace/blackchain/build/blackchaind-sdk54 (Cosmos SDK v0.54.5, Cosmos EVM v0.7.4)
 # Home:   workspace/blackchain/devnet-data-sdk54/cosmos
 # Ports:  CometBFT RPC 127.0.0.1:26667, P2P 127.0.0.1:26666, gRPC 127.0.0.1:9092,
-#         REST API 127.0.0.1:1318, pprof 127.0.0.1:6061
+#         REST API 127.0.0.1:1318, pprof 127.0.0.1:6061,
+#         EVM JSON-RPC 127.0.0.1:8545, WS 127.0.0.1:8546
 #         (port digeser karena devnet SDK 0.55 lama masih jalan di 26657/26656/9090/1317/6060)
 # Start:  blackchaind-sdk54 start --home <home> --minimum-gas-prices 0stake
 #         --rpc.laddr tcp://127.0.0.1:26667 --p2p.laddr tcp://127.0.0.1:26666
-#         --grpc.address 127.0.0.1:9092 --api.address tcp://127.0.0.1:1318
-#         --rpc.pprof_laddr 127.0.0.1:6061
+#         --grpc.address 127.0.0.1:9092 --rpc.pprof_laddr 127.0.0.1:6061
+#         --json-rpc.enable=true --json-rpc.address 127.0.0.1:8545
+#         --json-rpc.ws-address 127.0.0.1:8546
+#         (+ config.toml mempool.type="app" untuk mempool Krakatoa; app.toml [api] address 1318)
 # Log:    workspace/blackchain/devnet-data-sdk54/cosmos-node.log
-
-## Status RPC (2026-11-20 13:00 UTC, ~3 menit setelah start)
-# curl http://127.0.0.1:26667/status
-# height: 7, catching_up: false, chain: blackchain-1
-
-## Blok 1 (curl http://127.0.0.1:26667/block?height=1)
-# height:      1
-# time:        2026-11-20T12:57:51.148083271Z
-# hash:        4A9F7F04C51299D80936F7C725AA443B90DD0ACBAC4EA8E5DFA1CED2F1EF6C54
-# app_hash:    E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855
-#              (hash state kosong pasca-InitChain — normal untuk blok 1)
-# num_txs:     0
-# chain_id:    blackchain-1
+# PID saat bukti dicatat: 3219 (node masih jalan; devnet SDK 0.55 lama PID 15394 juga masih jalan)
 
 ## Genesis (terverifikasi sebelum start)
 # validate-genesis: "File at .../config/genesis.json is a valid genesis file"
-# app_state berisi: evm + feemarket (sebelumnya hilang — diperbaiki, lihat mission log F12)
-# evm params: evm_denom "stake", extended_denom "stake", base_fee feemarket 1e9
+# app_state berisi: evm + feemarket
+# evm params: evm_denom "stake", extended_denom "stake"
 # bank denom_metadata: stake (exponent 0) / BKC (exponent 18), display BKC
 #   -> EVM gas token = stake, 18 desimal, display BKC (selaras tokenomics BKC)
+# bank balances: validator cosmos addr 10^9 stake + 10^9 uatom;
+#   validator ETH addr (black1l0tpd85dur08kgm6fyhyahk2fksctj0vkd3tgf) 10^15 stake;
+#   supply stake 1000001000000000, uatom 1000000000.
+# auth accounts: validator (secp256k1) + ETH addr (ethsecp256k1 pubkey, account_number 1)
+#   -> akun auth untuk alamat ETH WAJIB ada: Keeper.GetAccount mengembalikan nil
+#      bila akun tidak ada, sehingga StateDB melihat saldo 0 (lihat mission log F17).
+
+## Blok pertama (run 2026-11-20 12:57 UTC)
+# curl http://127.0.0.1:26667/block?height=1
+# height: 1, time: 2026-11-20T12:57:51.148083271Z
+# hash: 4A9F7F04C51299D80936F7C725AA443B90DD0ACBAC4EA8E5DFA1CED2F1EF6C54
+# app_hash: E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855 (kosong pasca-InitChain, normal)
+# num_txs: 0, chain_id: blackchain-1
+
+## EVM JSON-RPC live (2026-11-20 ~13:50 UTC)
+# curl -X POST http://127.0.0.1:8545 {"method":"eth_chainId"}    -> {"result":"0x40000"} (= 262144, DefaultEVMChainID)
+# curl -X POST http://127.0.0.1:8545 {"method":"eth_blockNumber"} -> {"result":"0x5"} (cocok height CometBFT)
+# curl -X POST http://127.0.0.1:8545 {"method":"eth_getBalance","params":["0xFbD6169E8De0de7B237A492E4edEcA4Da185C9EC","latest"]}
+#   -> {"result":"0x38d7ea4c68000"} (= 10^15 wei = 10^15 a-stake)
+
+## Transfer EVM pertama (BUKTI UTAMA) — 2026-11-20 ~13:50 UTC
+# Pengirim:  0xFbD6169E8De0de7B237A492E4edEcA4Da185C9EC (alamat ETH kunci validator)
+# Penerima:  0xC9fCdB73d9e5863063bBb477143c2Ca0F832B935 (akun baru sekali pakai)
+# Nilai: 1.000.000 wei (= 1.000.000 a-stake), gas 21000, gasPrice 577.022.551 wei
+# tx hash: 0xd836e930d8896f5660e2546b99da997d4f9d0f0dca8650faa39636e8db8c132f
+# receipt: blockNumber 0x6 (6), status 0x1 (sukses), gasUsed 0x5208 (21000)
+#   from 0xfbd6169e8de0de7b237a492e4edeca4da185c9ec
+#   to   0xc9fcdb73d9e5863063bbb477143c2ca0f832b935
+# saldo pengirim:  10^15 -> 987.882.525.429.000 wei (delta -12.117.474.571.000 = 10^6 nilai + 21000*577.022.551 gas)
+# saldo penerima:  0 -> 1.000.000 wei (delta persis +1.000.000)
+# Transfer pertama SEBELUMNYA (run sebelum perbaikan decoder, tx 0x9e8442bd...):
+#   penerima 0x093B1EA789A49555D77515B08a2ECDf661F62025 saldo 0xf4240 (= 1.000.000 wei) — juga sukses.
+# Skrip tes: workspace/.build-tmp/evm-transfer-test.py (venv: workspace/.build-tmp/evmtest-venv)
+#   Kunci privat validator HANYA dipakai transient via env (keys export -y), tidak ditulis ke file/log.
 
 ## Catatan
-# - Ini devnet Cosmos SDK + Cosmos EVM (x/vm + x/feemarket ter-wire).
-# - JSON-RPC EVM (eth_blockNumber / eth_chainId) BELUM tersedia pada binary ini:
-#   perintah `start` masih dari Cosmos SDK; swap ke Cosmos EVM server.StartCmd
-#   masih dikerjakan (lihat mission log). JANGAN klaim EVM live sebelum RPC eth menjawab.
-# - Belum ada transaksi, belum ada TPS terukur, bukan testnet/mainnet.
+# - Ini devnet lokal Cosmos SDK + Cosmos EVM (x/vm + x/feemarket + mempool Krakatoa + JSON-RPC).
+# - Semantik saldo EVM: 1 stake (base) = 1 wei (a-stake); 1 BKC display = 10^18 stake.
+#   Validator didanai 10^15 stake di alamat ETH-nya = 0,001 BKC (uang mainan devnet).
+# - Belum ada transaksi selain 2 transfer tes di atas, belum ada smart contract,
+#   belum ada TPS terukur, bukan testnet/mainnet.

@@ -34,11 +34,24 @@ Catatan teknis: port P2P rehearsal adalah 26776/26786/26796/26806
 (bukan 26656 default) karena empat node berbagi satu mesin. Node publik
 nanti memakai port **26656** (lihat `docs/18` §5).
 
-## Seed node publik (akan datang)
+## Seed node publik (VPS) — Sesi 11: PERSIAPAN, BELUM TERISI
 
-| Validator | Node ID (P2P) | Alamat P2P (publik) | Status |
+Pemilik sudah menyediakan VPS (dinyatakan 2026-11-21 00:01 WIB), dan
+paket deploy sudah siap (`testnet/vps-deploy.sh` + `testnet/vps-runbook.md`
++ `docs/21-vps-seed-deployment.md`). Tetapi **IP publik, username SSH,
+OS, dan konfirmasi kunci SSH belum diterima**, sehingga belum ada deploy
+dan tabel di bawah ini MASIH KOSONG — placeholder di bawah ini BUKAN
+alamat sungguhan dan JANGAN dipakai untuk menghubungkan node.
+
+| Seed | Node ID (P2P) | Alamat P2P (publik) | Status |
 |---|---|---|---|
-| (belum ada) | — | — | Menunggu VPS + IP publik (P1) |
+| blackchain-seed-1 | `<NODE-ID-SEED>` | `<NODE-ID-SEED>@<IP-PUBLIK-VPS>:26656` | ⏳ Menunggu deploy + verifikasi (runbook §3–§5) |
+
+Tabel ini baru diisi dengan nilai sungguhan SETELAH seed VPS
+terverifikasi hidup dan bisa di-dial dari luar (verifikasi runbook §5:
+node baru sync lewat seed, `eth_chainId` = `0x1352900`, height sama
+dengan jaringan). Sampai saat itu, satu-satunya seed yang ada adalah
+node rehearsal lokal di atas — yang HANYA berlaku di dalam VM tersebut.
 
 Format alamat seed publik nanti:
 `<node-id>@<IP-publik>:26656` — dipakai sebagai `--p2p.seeds` saat

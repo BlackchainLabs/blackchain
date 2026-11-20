@@ -54,7 +54,7 @@ Legenda: ✅ Siap · 🔄 Dikerjakan / sebagian · ⬜ Belum dimulai ·
 |---|---|---|
 | Repo GitHub publik | ✅ Siap | `BlackchainLabs/blackchain`, head `3b165f3e` (Sesi 4+5) |
 | Roadmap diperbarui | ✅ Siap | `ROADMAP.md` (status 20 Nov 2026 22:19 WIB) |
-| Seed / peer testnet | 🔄 Dikerjakan | **Paket publik TERBUKA Sesi 10** (`repo/testnet/`: genesis + README + `seeds.md`); daftar seed berisi node ID + alamat 127.0.0.1 rehearsal — seed PUBLIK belum ada (butuh server + IP publik, prasyarat P1) |
+| Seed / peer testnet | 🔄 Dikerjakan | **Paket publik TERBUKA Sesi 10** (`repo/testnet/`: genesis + README + `seeds.md`); daftar seed berisi node ID + alamat 127.0.0.1 rehearsal — seed PUBLIK belum ada (butuh server + IP publik, prasyarat P1). **Sesi 11 (21 Nov 2026): paket deploy VPS SIAP — persiapan, BUKAN selesai** (`repo/testnet/vps-deploy.sh` + `vps-runbook.md` + `docs/21`); VPS sudah disediakan pemilik, tetapi IP/username/OS/konfirmasi kunci SSH belum diterima dan deploy belum dieksekusi — P1 menjadi SEBAGIAN (lihat `docs/21` §6) |
 | Monitoring & alert validator | ⬜ Belum | Panduan ada (`docs/13` B.4); sistem monitoring BELUM dibangun |
 | Snapshot sync / state sync | ⬜ Belum | Belum disiapkan |
 | Rencana insiden & upgrade | ⬜ Belum | Belum ditulis (wajib sebelum pembukaan publik, `docs/18` §6) |
@@ -74,6 +74,7 @@ atau menyetujui:
 |---|---|---|---|
 | A | **Alamat & parameter vesting** — 5 alamat anggota multisig, alamat beneficiary tim, timestamp `start`, daftar klaim komunitas + Merkle root | Kontrak tidak bisa di-deploy ke Sepolia | `docs/15` §2 |
 | B | **Anggaran hardware** — siapa menyediakan & membayar server validator tahap 1 (16 vCPU/64 GB/NVMe) + node RPC/archive | Eksperimen E1/E2 Fase 1 tidak bisa dijalankan; baseline TPS tetap di VM 1,5 CPU | `docs/10` §4, `docs/16` §5.1 |
+| B2 | **Akses VPS seed** (bagian dari B) — VPS sudah disediakan pemilik 21 Nov 2026, tetapi IP publik + username SSH + OS/distro + konfirmasi kunci publik di `authorized_keys` belum diterima; deploy seed belum dieksekusi | Tidak ada endpoint publik sampai deploy + verifikasi selesai (runbook §3–§5) | `docs/21`, `repo/testnet/vps-runbook.md` §1 |
 | C | **Genesis testnet final + tanggal buka** — draft genesis SUDAH ADA dan teruji (`docs/17` §2, `genesis/blackchain-testnet-genesis.json`); yang tersisa: keputusan pakai-apa-adanya vs buat-ulang, pemindahan pool subsidi (20 jt tBKC) + faucet (10 jt tBKC) dari alamat operator ke community pool/multisig, dan tanggal buka testnet | Testnet tidak bisa dibuka | `docs/18` §7–§8 |
 | D | **Pengumuman resmi testnet** | Butuh persetujuan eksplisit pemilik (aturan misi) | — |
 
@@ -90,6 +91,10 @@ menghalangi pekerjaan performa Fase 1.
   pengumuman sudah ada, menunggu persetujuan) · **Blokir konkret
   pemilik:** 4 item (A alamat vesting, B anggaran hardware/server+domain,
   C keputusan genesis final + tanggal buka, D persetujuan pengumuman).
+  **Sesi 11 (21 Nov 2026):** paket deploy seed VPS SIAP (persiapan) —
+  hitungan TIDAK berubah karena belum ada item yang pindah ke Siap;
+  P1 menjadi SEBAGIAN (VPS sudah disediakan pemilik; akses belum
+  diterima; deploy belum dieksekusi) — lihat `docs/21` §6.
 - **Kesimpulan jujur:** **paket testnet publik TERBUKA** (genesis +
   panduan + seed list jujur + draft pengumuman), dan chain-nya SUDAH
   TERBUKTI BERJALAN (rehearsal 4 validator: sinkron height 472, transfer

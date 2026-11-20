@@ -1,0 +1,90 @@
+diff -ru /home/hatch/go/pkg/mod/github.com/cosmos/evm@v0.7.4/rpc/backend/sign_tx.go /home/hatch/workspace/blackchain/build/evm-fork/rpc/backend/sign_tx.go
+--- /home/hatch/go/pkg/mod/github.com/cosmos/evm@v0.7.4/rpc/backend/sign_tx.go	2026-11-20 11:38:05.472827022 +0000
++++ /home/hatch/workspace/blackchain/build/evm-fork/rpc/backend/sign_tx.go	2026-11-20 13:40:23.981790450 +0000
+@@ -127,7 +127,7 @@
+ 	}
+ 
+ 	// Sign the requested hash with the wallet
+-	signature, _, err := b.ClientCtx.Keyring.SignByAddress(from, data, signingtypes.SignMode_SIGN_MODE_TEXTUAL)
++	signature, _, err := b.ClientCtx.Keyring.SignByAddress(from, data, signingtypes.SignMode_SIGN_MODE_DIRECT)
+ 	if err != nil {
+ 		b.Logger.Error("keyring.SignByAddress failed", "address", address.Hex())
+ 		return nil, err
+@@ -153,7 +153,7 @@
+ 	}
+ 
+ 	// Sign the requested hash with the wallet
+-	signature, _, err := b.ClientCtx.Keyring.SignByAddress(from, sigHash, signingtypes.SignMode_SIGN_MODE_TEXTUAL)
++	signature, _, err := b.ClientCtx.Keyring.SignByAddress(from, sigHash, signingtypes.SignMode_SIGN_MODE_DIRECT)
+ 	if err != nil {
+ 		b.Logger.Error("keyring.SignByAddress failed", "address", address.Hex())
+ 		return nil, err
+diff -ru /home/hatch/go/pkg/mod/github.com/cosmos/evm@v0.7.4/tests/integration/rpc/backend/test_sign_tx.go /home/hatch/workspace/blackchain/build/evm-fork/tests/integration/rpc/backend/test_sign_tx.go
+--- /home/hatch/go/pkg/mod/github.com/cosmos/evm@v0.7.4/tests/integration/rpc/backend/test_sign_tx.go	2026-11-20 11:38:05.506740917 +0000
++++ /home/hatch/workspace/blackchain/build/evm-fork/tests/integration/rpc/backend/test_sign_tx.go	2026-11-20 13:40:23.983975705 +0000
+@@ -185,7 +185,7 @@
+ 
+ 			responseBz, err := s.backend.Sign(tc.fromAddr, tc.inputBz)
+ 			if tc.expPass {
+-				signature, _, err := s.backend.ClientCtx.Keyring.SignByAddress((sdk.AccAddress)(from.Bytes()), tc.inputBz, signingtypes.SignMode_SIGN_MODE_TEXTUAL)
++				signature, _, err := s.backend.ClientCtx.Keyring.SignByAddress((sdk.AccAddress)(from.Bytes()), tc.inputBz, signingtypes.SignMode_SIGN_MODE_DIRECT)
+ 				signature[goethcrypto.RecoveryIDOffset] += 27
+ 				s.Require().NoError(err)
+ 				s.Require().Equal((hexutil.Bytes)(signature), responseBz)
+@@ -235,7 +235,7 @@
+ 
+ 			if tc.expPass {
+ 				sigHash, _, _ := apitypes.TypedDataAndHash(tc.inputTypedData)
+-				signature, _, err := s.backend.ClientCtx.Keyring.SignByAddress((sdk.AccAddress)(from.Bytes()), sigHash, signingtypes.SignMode_SIGN_MODE_TEXTUAL)
++				signature, _, err := s.backend.ClientCtx.Keyring.SignByAddress((sdk.AccAddress)(from.Bytes()), sigHash, signingtypes.SignMode_SIGN_MODE_DIRECT)
+ 				signature[goethcrypto.RecoveryIDOffset] += 27
+ 				s.Require().NoError(err)
+ 				s.Require().Equal((hexutil.Bytes)(signature), responseBz)
+diff -ru /home/hatch/go/pkg/mod/github.com/cosmos/evm@v0.7.4/tests/integration/wallets/test_legder.go /home/hatch/workspace/blackchain/build/evm-fork/tests/integration/wallets/test_legder.go
+--- /home/hatch/go/pkg/mod/github.com/cosmos/evm@v0.7.4/tests/integration/wallets/test_legder.go	2026-11-20 11:38:05.507514838 +0000
++++ /home/hatch/workspace/blackchain/build/evm-fork/tests/integration/wallets/test_legder.go	2026-11-20 13:40:23.986480098 +0000
+@@ -143,7 +143,7 @@
+ 		suite.Run(tc.name, func() {
+ 			suite.SetupTest() // reset
+ 			tc.mockFunc()
+-			_, err := suite.ledger.SignSECP256K1(gethaccounts.DefaultBaseDerivationPath, tc.tx, byte(signingtypes.SignMode_SIGN_MODE_TEXTUAL))
++			_, err := suite.ledger.SignSECP256K1(gethaccounts.DefaultBaseDerivationPath, tc.tx, byte(signingtypes.SignMode_SIGN_MODE_DIRECT))
+ 			if tc.expPass {
+ 				suite.Require().NoError(err)
+ 			} else {
+@@ -187,9 +187,9 @@
+ 		suite.Run(tc.name, func() {
+ 			suite.SetupTest() // reset
+ 			tc.mockFunc()
+-			protoSignature, err := suite.ledger.SignSECP256K1(gethaccounts.DefaultBaseDerivationPath, tc.txProtobuf, byte(signingtypes.SignMode_SIGN_MODE_TEXTUAL))
++			protoSignature, err := suite.ledger.SignSECP256K1(gethaccounts.DefaultBaseDerivationPath, tc.txProtobuf, byte(signingtypes.SignMode_SIGN_MODE_DIRECT))
+ 			suite.Require().NoError(err)
+-			aminoSignature, err := suite.ledger.SignSECP256K1(gethaccounts.DefaultBaseDerivationPath, tc.txAmino, byte(signingtypes.SignMode_SIGN_MODE_TEXTUAL))
++			aminoSignature, err := suite.ledger.SignSECP256K1(gethaccounts.DefaultBaseDerivationPath, tc.txAmino, byte(signingtypes.SignMode_SIGN_MODE_DIRECT))
+ 			suite.Require().NoError(err)
+ 			if tc.expPass {
+ 				suite.Require().Equal(protoSignature, aminoSignature)
+diff -ru /home/hatch/go/pkg/mod/github.com/cosmos/evm@v0.7.4/tests/integration/x/vm/state_transition_benchmark.go /home/hatch/workspace/blackchain/build/evm-fork/tests/integration/x/vm/state_transition_benchmark.go
+--- /home/hatch/go/pkg/mod/github.com/cosmos/evm@v0.7.4/tests/integration/x/vm/state_transition_benchmark.go	2026-11-20 11:38:05.510589092 +0000
++++ /home/hatch/workspace/blackchain/build/evm-fork/tests/integration/x/vm/state_transition_benchmark.go	2026-11-20 13:40:23.989061517 +0000
+@@ -77,7 +77,7 @@
+ 		return nil, errors.New("unknown transaction type")
+ 	}
+ 
+-	sig, _, err := krSigner.SignByAddress(addr, ethTx.Hash().Bytes(), signingtypes.SignMode_SIGN_MODE_TEXTUAL)
++	sig, _, err := krSigner.SignByAddress(addr, ethTx.Hash().Bytes(), signingtypes.SignMode_SIGN_MODE_DIRECT)
+ 	if err != nil {
+ 		return nil, err
+ 	}
+diff -ru /home/hatch/go/pkg/mod/github.com/cosmos/evm@v0.7.4/x/vm/types/msg.go /home/hatch/workspace/blackchain/build/evm-fork/x/vm/types/msg.go
+--- /home/hatch/go/pkg/mod/github.com/cosmos/evm@v0.7.4/x/vm/types/msg.go	2026-11-20 11:38:05.549738974 +0000
++++ /home/hatch/workspace/blackchain/build/evm-fork/x/vm/types/msg.go	2026-11-20 13:40:23.991296176 +0000
+@@ -205,7 +205,7 @@
+ 	tx := msg.AsTransaction()
+ 	txHash := ethSigner.Hash(tx)
+ 
+-	sig, _, err := keyringSigner.SignByAddress(from, txHash.Bytes(), signingtypes.SignMode_SIGN_MODE_TEXTUAL)
++	sig, _, err := keyringSigner.SignByAddress(from, txHash.Bytes(), signingtypes.SignMode_SIGN_MODE_DIRECT)
+ 	if err != nil {
+ 		return err
+ 	}
