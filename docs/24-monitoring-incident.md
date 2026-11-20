@@ -128,15 +128,21 @@ Pemilik tiap langkah: operator (Muse) untuk langkah teknis; Teuku
    beri tahu Sesi 9 / Muse utama.
 6. Jalankan health-check 2x; catat kejadian di mission log sebagai
    insiden (bukan kegagalan kode).
-7. **Pencegahan (belum dikerjakan — butuh keputusan pemilik):**
-   systemd unit / supervisor agar node + layanan auto-start saat VM
-   reboot; backup berkala `priv_validator_key.json` terenkripsi
-   offline. Tanpa ini, setiap restart VM = downtime manual.
+7. **Pencegahan (SELESAI 21 Nov 2026 — auto-start):** unit systemd
+   SYSTEM `blackchain-*.service` + `blackchain.target` di
+   `/etc/systemd/system/` (sumber: `repo/systemd/`, pasang ulang via
+   `repo/systemd/install.sh`); semua layanan start otomatis saat boot
+   + `Restart=on-failure` bila crash. Detail + keterbatasan:
+   `repo/systemd/README.md`. Sisa terbuka: backup berkala
+   `priv_validator_key.json` terenkripsi offline (butuh keputusan
+   pemilik).
 
 ### 3.6 Faucet habis / faucet DOWN
 
 - DOWN: cek proses faucet (`ps` + `repo/faucet/faucet.log`), restart
-  dengan `repo/faucet/start.sh`. Kunci diekspor ulang ke memori saat start.
+  dengan `systemctl restart blackchain-faucet.service` (kini dikelola
+  systemd; systemd juga me-restart otomatis bila crash — `repo/faucet/start.sh`
+  tetap bisa dipakai manual bila systemd tidak aktif). Kunci diekspor ulang ke memori saat start.
 - Habis (saldo <100 BKC): JANGAN isi ulang diam-diam — lihat
   `docs/22` §2 (opsi unbond / transfer genesis / regenesis).
   **[PEMILIK]** memilih opsi + menyetujui sumber dana.
@@ -144,7 +150,9 @@ Pemilik tiap langkah: operator (Muse) untuk langkah teknis; Teuku
 ### 3.7 BlackScan lag / DOWN
 
 - DOWN: cek proses + `repo/blackscan/blackscan.log`, restart
-  `repo/blackscan/start.sh`; indexer backfill otomatis dari height
+  `systemctl restart blackchain-blackscan.service` (kini dikelola
+  systemd; `repo/blackscan/start.sh` tetap bisa dipakai manual bila
+  systemd tidak aktif); indexer backfill otomatis dari height
   terakhir di SQLite.
 - Lag >10 blok: cek `GET /api/health` (`indexer_error`); cek RPC val1
   (8655) hidup atau tidak. Bila DB rusak: hapus
@@ -168,5 +176,5 @@ Pemilik tiap langkah: operator (Muse) untuk langkah teknis; Teuku
 2. Alerting keluar (Telegram/email) belum ada — health-check hanya
    menulis file + exit code. Butuh keputusan pemilik (saluran + siapa
    menerima).
-3. Auto-start systemd/supervisor pasca-restart VM (§3.5 butir 7).
+3. Auto-start systemd pasca-restart VM (§3.5 butir 7) — SELESAI 21 Nov 2026 (unit di `repo/systemd/`, terpasang + ter-enable; uji Restart terbukti pada faucet + BlackScan; uji boot penuh baru saat VM restart berikutnya).
 4. Backup kunci validator terenkripsi offline (belum ada jadwal).

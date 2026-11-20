@@ -11,6 +11,10 @@
 # Penggunaan: ./repo/scripts/restart-all-nodes.sh
 # Verifikasi: curl tiap port /status, lihat height + catching_up=false;
 #   lalu curl faucet /api/status dan BlackScan /api/health (harus 200).
+# Auto-start: unit systemd di repo/systemd/ (blackchain.target) menjalankan
+# perintah yang SAMA saat boot + Restart=on-failure bila crash. Script ini
+# tetap menjadi jalur pemulihan manual + jalur hook health-check; guard
+# pgrep/curl di bawah mencegah duplikat bila systemd sudah menyalakan layanan.
 set -u
 cd "$HOME/workspace/blackchain" || exit 1
 

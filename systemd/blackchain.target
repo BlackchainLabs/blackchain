@@ -1,0 +1,8 @@
+[Unit]
+Description=BLACKCHAIN — semua layanan lokal (devnet + 4 validator + fork Fase 1 + faucet + BlackScan)
+Documentation=file:///home/hatch/workspace/blackchain/repo/systemd/README.md
+After=multi-user.target
+Wants=blackchain-devnet.service blackchain-val1.service blackchain-val2.service blackchain-val3.service blackchain-val4.service blackchain-phase1.service blackchain-faucet.service blackchain-blackscan.service
+
+[Install]
+WantedBy=multi-user.target

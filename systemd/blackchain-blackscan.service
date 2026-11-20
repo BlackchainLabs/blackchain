@@ -1,0 +1,23 @@
+[Unit]
+Description=BLACKCHAIN BlackScan Lite indexer, 127.0.0.1:8081
+Documentation=file:///home/hatch/workspace/blackchain/repo/systemd/README.md
+After=network.target blackchain-val1.service
+Wants=blackchain-val1.service
+StartLimitBurst=5
+StartLimitIntervalSec=300
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/hatch/workspace/blackchain/repo/blackscan
+Environment=HOME=/home/hatch
+# Jangan start duplikat bila sudah menjawab.
+ExecCondition=/bin/bash -c '! curl -sf -m 3 http://127.0.0.1:8081/api/health >/dev/null'
+ExecStart=/home/hatch/workspace/blackchain/repo/blackscan/start.sh
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:/home/hatch/workspace/blackchain/repo/blackscan/blackscan.log
+StandardError=inherit
+
+[Install]
+WantedBy=blackchain.target

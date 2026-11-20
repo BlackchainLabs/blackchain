@@ -1,0 +1,24 @@
+[Unit]
+Description=BLACKCHAIN devnet BKC (Jalur A) — 1 validator, EVM 8555
+Documentation=file:///home/hatch/workspace/blackchain/repo/systemd/README.md
+After=network.target
+Wants=network.target
+StartLimitBurst=5
+StartLimitIntervalSec=300
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/hatch/workspace/blackchain
+Environment=HOME=/home/hatch
+# Jangan start duplikat: bila RPC sudah menjawab, node ini sudah jalan
+# (mis. dipulihkan hook health-check sebelum systemd sempat start).
+ExecCondition=/bin/bash -c '! curl -sf -m 3 http://127.0.0.1:26677/status >/dev/null'
+ExecStart=/home/hatch/workspace/blackchain/build/blackchaind-sdk54-bkc start --home /home/hatch/workspace/blackchain/devnet-data-bkc/cosmos --minimum-gas-prices 0abkc --rpc.laddr tcp://127.0.0.1:26677 --p2p.laddr tcp://127.0.0.1:26676 --grpc.address 127.0.0.1:9102 --rpc.pprof_laddr 127.0.0.1:6071 --json-rpc.enable=true --json-rpc.address 127.0.0.1:8555 --json-rpc.ws-address 127.0.0.1:8556
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:/home/hatch/workspace/blackchain/devnet-data-bkc/cosmos-node5.log
+StandardError=inherit
+
+[Install]
+WantedBy=blackchain.target

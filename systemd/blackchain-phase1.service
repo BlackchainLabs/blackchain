@@ -1,0 +1,23 @@
+[Unit]
+Description=BLACKCHAIN devnet fork Fase 1 (ingest paralel), EVM 8755
+Documentation=file:///home/hatch/workspace/blackchain/repo/systemd/README.md
+After=network.target
+Wants=network.target
+StartLimitBurst=5
+StartLimitIntervalSec=300
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/hatch/workspace/blackchain
+Environment=HOME=/home/hatch
+# Jangan start duplikat: bila RPC sudah menjawab, node ini sudah jalan.
+ExecCondition=/bin/bash -c '! curl -sf -m 3 http://127.0.0.1:26877/status >/dev/null'
+ExecStart=/home/hatch/workspace/blackchain/build/blackchaind-phase1 start --home /home/hatch/workspace/blackchain/phase1-data/cosmos --minimum-gas-prices 0abkc --rpc.laddr tcp://127.0.0.1:26877 --p2p.laddr tcp://127.0.0.1:26876 --grpc.address 127.0.0.1:9302 --rpc.pprof_laddr 127.0.0.1:6271 --json-rpc.enable=true --json-rpc.address 127.0.0.1:8755 --json-rpc.ws-address 127.0.0.1:8756
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:/home/hatch/workspace/blackchain/phase1-data/cosmos-node.log
+StandardError=inherit
+
+[Install]
+WantedBy=blackchain.target

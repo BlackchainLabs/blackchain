@@ -1,0 +1,23 @@
+[Unit]
+Description=BLACKCHAIN testnet rehearsal validator 1, EVM 8655
+Documentation=file:///home/hatch/workspace/blackchain/repo/systemd/README.md
+After=network.target
+Wants=network.target
+StartLimitBurst=5
+StartLimitIntervalSec=300
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/hatch/workspace/blackchain
+Environment=HOME=/home/hatch
+# Jangan start duplikat: bila RPC sudah menjawab, validator ini sudah jalan.
+ExecCondition=/bin/bash -c '! curl -sf -m 3 http://127.0.0.1:26777/status >/dev/null'
+ExecStart=/home/hatch/workspace/blackchain/build/blackchaind-sdk54-bkc start --home /home/hatch/workspace/blackchain/testnet-data/val1 --minimum-gas-prices 0abkc --rpc.laddr tcp://127.0.0.1:26777 --p2p.laddr tcp://127.0.0.1:26776 --grpc.address 127.0.0.1:9202 --rpc.pprof_laddr 127.0.0.1:6171 --json-rpc.enable=true --json-rpc.address 127.0.0.1:8655 --json-rpc.ws-address 127.0.0.1:8656
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:/home/hatch/workspace/blackchain/testnet-data/val1-node.log
+StandardError=inherit
+
+[Install]
+WantedBy=blackchain.target
