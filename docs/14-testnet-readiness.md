@@ -26,8 +26,9 @@ live di fork devnet (chain 20261120), uji fungsional LOLOS, E1/E2
 terukur di VM 1,5 CPU: transfers 61,2 → **87,3 TPS (+43%)**, submit
 95 → 204 tx/dtk (1.301 tx/dtk mentah), contract sustained TETAP
 ~49 TPS (bottleneck blok/eksekusi serial, bukan ingest) — lihat
-`docs/19`. Fork TIDAK masuk testnet (masih di `build/` + devnet
-terpisah); merge ke pohon Jalur A menunggu keputusan pemilik.
+`docs/19`. Fork SUDAH di-merge ke pohon Jalur A Sesi 14
+(`repo/chain/` + `repo/evm/`, binary deploy berisi Fase 1 — lihat
+`docs/19` §7.1).
 
 Legenda: ✅ Siap · 🔄 Dikerjakan / sebagian · ⬜ Belum dimulai ·
 🔴 Diblokir keputusan pemilik.
@@ -43,7 +44,7 @@ Legenda: ✅ Siap · 🔄 Dikerjakan / sebagian · ⬜ Belum dimulai ·
 | Devnet 1 validator stabil | ✅ Siap | Height 1815 saat checklist ini ditulis |
 | Devnet multi-validator (4 node) | ✅ Siap | Rehearsal 4 validator live Sesi 8 (`docs/17`): height sama + hash sama di 4 node, transfer EVM terkonfirmasi di 4 node, liveness 3/4 terbukti. Pelajaran F32/F33 tercatat. |
 | Genesis testnet publik | ✅ Siap (draft) | `genesis/blackchain-testnet-genesis.json` — 4 gentx @ 1.000 BKC, total supply genesis 30.080.000 BKC, `genesis validate` LOLOS. Masih DRAFT: keputusan final (pakai apa adanya vs buat ulang) + pemindahan pool subsidi/faucet + tanggal buka ada di `docs/18` §7–§8 |
-| Jalur ke 100.000 TPS | 🔄 Dikerjakan | Riset & desain selesai (`docs/10`); urutan Fase 1→4 DISETUJUI Sesi 7; desain implementasi Fase 1 selesai (`docs/16`); **implementasi kode Fase 1 SELESAI + TERUKUR Sesi 9** (`docs/19`, fork `build/blackchain-phase1/`, endpoint `eth_sendRawTransactionBatch` live di devnet fork chain 20261120): transfers 61,2 → 87,3 TPS (+43%), submit 95 → 204 tx/dtk (1.301 mentah), contract sustained tetap ~49 TPS (bottleneck blok/eksekusi serial). **Yang belum:** merge fork ke pohon Jalur A (butuh keputusan pemilik), Fase 1b (shard txpool internal), Fase 2–4, dan E1/E2 di hardware layak (blokir B). Plafon terukur tahap 1 di VM ini: ~87 TPS transfer / ~49 TPS contract — BUKAN 300–1.000 TPS (itu estimasi lama, kini diganti angka terukur). |
+| Jalur ke 100.000 TPS | 🔄 Dikerjakan | Riset & desain selesai (`docs/10`); urutan Fase 1→4 DISETUJUI Sesi 7; desain implementasi Fase 1 selesai (`docs/16`); **implementasi kode Fase 1 SELESAI + TERUKUR Sesi 9** (`docs/19`, fork `build/blackchain-phase1/`, endpoint `eth_sendRawTransactionBatch` live di devnet fork chain 20261120): transfers 61,2 → 87,3 TPS (+43%), submit 95 → 204 tx/dtk (1.301 mentah), contract sustained tetap ~49 TPS (bottleneck blok/eksekusi serial). **Yang belum:** Fase 1b (shard txpool internal), Fase 2–4, dan E1/E2 di hardware layak (blokir B). **Merge ke Jalur A SELESAI Sesi 14** (`docs/19` §7.1; binary deploy kini berisi Fase 1). Plafon terukur tahap 1 di VM ini: ~87 TPS transfer / ~49 TPS contract — BUKAN 300–1.000 TPS (itu estimasi lama, kini diganti angka terukur). |
 | Audit keamanan chain | ⬜ Belum | Wajib sebelum mainnet; belum dijadwalkan |
 
 ## 2. Token & kontrak
@@ -92,7 +93,7 @@ atau menyetujui:
 | # | Yang masih dibutuhkan | Dampak bila belum ada | Dokumen |
 |---|---|---|---|
 | A | **Alamat & parameter vesting** — 5 alamat anggota multisig, alamat beneficiary tim, timestamp `start`, daftar klaim komunitas + Merkle root | Kontrak tidak bisa di-deploy ke Sepolia | `docs/15` §2 |
-| B | **Anggaran hardware** — siapa menyediakan & membayar server validator tahap 1 (16 vCPU/64 GB/NVMe) + node RPC/archive | E1/E2 Fase 1 SUDAH dijalankan di VM 1,5 CPU (perbandingan relatif, `docs/19`) — yang masih tertahan: angka ABSOLUT di hardware layak + node RPC khusus + merge fork ke testnet | `docs/10` §4, `docs/16` §5.1, `docs/19` §5–§6 |
+| B | **Anggaran hardware** — siapa menyediakan & membayar server validator tahap 1 (16 vCPU/64 GB/NVMe) + node RPC/archive | E1/E2 Fase 1 SUDAH dijalankan di VM 1,5 CPU (perbandingan relatif, `docs/19`) — yang masih tertahan: angka ABSOLUT di hardware layak + node RPC khusus (merge fork ke testnet SELESAI Sesi 14) | `docs/10` §4, `docs/16` §5.1, `docs/19` §5–§6 |
 | B2 | **Akses VPS seed** (bagian dari B) — VPS sudah disediakan pemilik 21 Nov 2026, IP publik **103.147.8.20** (Starnet, Bandung) diterima 00:14 WIB, tetapi **SSH GAGAL dari VM ini: port 22/80/443 tidak menjawab** (kemungkinan VPS belum menyala / firewall menutup port 22 / layanan SSH belum aktif); deploy seed belum dieksekusi | Tidak ada endpoint publik sampai VPS bisa diakses + deploy + verifikasi selesai (runbook §3–§5) | `docs/21`, `repo/testnet/vps-runbook.md` §1 |
 | C | **Genesis testnet final + tanggal buka** — draft genesis SUDAH ADA dan teruji (`docs/17` §2, `genesis/blackchain-testnet-genesis.json`); yang tersisa: keputusan pakai-apa-adanya vs buat-ulang, pemindahan pool subsidi (20 jt tBKC) + faucet (10 jt tBKC) dari alamat operator ke community pool/multisig, dan tanggal buka testnet | Testnet tidak bisa dibuka | `docs/18` §7–§8 |
 | D | **Pengumuman resmi testnet** | Butuh persetujuan eksplisit pemilik (aturan misi) | — |
@@ -121,6 +122,10 @@ menghalangi pekerjaan performa Fase 1.
   terimplementasi + terukur (`docs/19`); hitungan TIDAK berubah
   (baris "Jalur ke 100.000 TPS" tetap Dikerjakan — Fase 1b + Fase 2–4
   + merge fork masih menunggu).
+  **Sesi 14 SELESAI (21 Nov 2026 ~02:40 WIB):** merge Fase 1 ke pohon
+  Jalur A (`repo/chain/` + `repo/evm/`, binary deploy berisi Fase 1 —
+  lihat `docs/19` §7.1); hitungan TIDAK berubah (baris "Jalur ke
+  100.000 TPS" tetap Dikerjakan — Fase 1b + Fase 2–4 masih menunggu).
 - **Kesimpulan jujur:** **paket testnet publik TERBUKA** (genesis +
   panduan + seed list jujur + draft pengumuman), chain-nya SUDAH
   TERBUKTI BERJALAN (rehearsal 4 validator: sinkron height 923,

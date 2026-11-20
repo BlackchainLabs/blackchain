@@ -96,7 +96,7 @@ Catatan:
 - Binary ~199 MB — transfer sekali saja; bila gagal di tengah, ulangi
   perintah yang sama (scp menimpa file sebagian).
 - `vps-deploy.sh` sendiri memverifikasi sha256 kedua file sebelum
-  deploy (binary `37766ab8…b9f06`, genesis `0fbd6b09…52431` — nilai
+  deploy (binary `43b97dfd…f2a44`, genesis `0fbd6b09…52431` — nilai
   lengkap ada di dalam script). Bila sha256 tidak cocok, STOP dan
   transfer ulang — jangan lanjut.
 - Bila pemilik memberi VPS dengan user `root` saja, buat dulu user

@@ -66,10 +66,11 @@ GENESIS_SRC="${DEPLOY_DIR}/blackchain-testnet-genesis.json"
 BIN_DST="/usr/local/bin/blackchaind"
 SERVICE_NAME="blackchaind-seed"
 
-# SHA-256 terverifikasi di VM lokal 2026-11-21 (Sesi 11).
-# Binary Jalur A: build/blackchaind-sdk54-bkc (SDK v0.54.5 + Cosmos EVM v0.7.4).
+# SHA-256 terverifikasi di VM lokal 2026-11-21 (Sesi 11; diperbarui Sesi 14).
+# Binary Jalur A: build/blackchaind-sdk54-bkc (SDK v0.54.5 + Cosmos EVM v0.7.4
+# + Fase 1 ingest paralel, merge Sesi 14 — lihat docs/19 §7.1).
 # Genesis: repo/testnet/blackchain-testnet-genesis.json (4 gentx, 30.080.000 BKC).
-BIN_SHA256="37766ab8672c0d3cfdb6a6640bbb073b6d42abba9e79b7619d3424ec3a6b9f06"
+BIN_SHA256="43b97dfd9593389529a88c061ca4c4ab0052b873c26774a8d5ff34af58cf2a44"
 GENESIS_SHA256="0fbd6b09664011e2ddad0866e58243ed5c2180421636776a34f1a0ac8c152431"
 
 DRY_RUN=0

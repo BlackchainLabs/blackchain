@@ -93,16 +93,17 @@ keputusan pemilik tersendiri — BUKAN bagian dari Sesi 11.
 
 ### 2.4 Binary ditransfer via scp, bukan dari GitHub
 
-Scaffold chain TIDAK ADA di repo GitHub (`build/` di-gitignore, dan
-kode scaffold memang tidak ikut ter-commit). Jadi tidak ada "build dari
-source" yang bisa dijalankan di VPS dari repo. Binary Jalur A
-(`build/blackchaind-sdk54-bkc`, SDK v0.54.5 + Cosmos EVM v0.7.4,
-~199 MB, sha256 `37766ab8…b9f06`) ditransfer dari VM ini via scp,
+Scaffold chain kini ADA di repo GitHub (`repo/chain/`, masuk Sesi 13),
+sehingga build dari source di VPS juga bisa (runbook §2b); jalur utama
+tetap scp binary. Binary Jalur A
+(`build/blackchaind-sdk54-bkc`, SDK v0.54.5 + Cosmos EVM v0.7.4
++ Fase 1 ingest paralel (merge Sesi 14), ~199 MB, sha256 `43b97dfd…f2a44`)
+ditransfer dari VM ini via scp,
 lalu diverifikasi sha256-nya oleh `vps-deploy.sh` sebelum dipakai.
 Validator eksternal yang bergabung nanti tetap mengikuti
 `docs/18` §2 (build dari source bila repositori scaffold sudah
 dipublikasikan, atau memakai binary rilis resmi bila sudah ada —
-keduanya BELUM ADA saat dokumen ini ditulis).
+scaffold sudah dipublikasikan Sesi 13; binary rilis resmi belum ada).
 
 ## 3. Port & firewall (keputusan Sesi 11)
 

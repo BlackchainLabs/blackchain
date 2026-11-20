@@ -1,6 +1,7 @@
 # BLACKCHAIN — Implementasi Fase 1: Ingest Paralel (Sesi 9, 2026-11-20)
 
 **Status:** IMPLEMENTASI SELESAI (kode) + PENGUKURAN E1/E2 — lihat §5.
+**Merge ke Jalur A SELESAI Sesi 14 (21 Nov 2026 ~02:40 WIB) — lihat §7.1.**
 Desain yang diimplementasikan: `docs/16-phase1-ingest-design.md`.
 Semua angka di dokumen ini berasal dari pengukuran nyata di VM ini
 (1,5 CPU shared / 8 GB RAM, 6 node berjalan bersamaan selama pengukuran);
@@ -330,3 +331,88 @@ atau genesis/parameter chain. Eksekusi tetap serial; app-hash tidak
 terpengaruh oleh perubahan admission (urutan masuk mempool per
 pengirim tetap FIFO nonce; urutan eksekusi ditentukan konsensus
 seperti sebelumnya).
+
+### 7.1 Merge ke Jalur A (Sesi 14, 21 Nov 2026 ~02:40 WIB)
+
+Keputusan pemilik 21 Nov 2026 ~02:28 WIB ("kamu tentukan aja semuanya
+gimana bagusnya"): merge JALAN karena fork sudah terbukti dan binary
+Jalur A adalah yang dipakai deploy seed VPS.
+
+**Yang di-merge (tidak ada konflik — diff fork vs Jalur A hanya 3 file
++ 1 file baru + 1 baris `go.mod`):**
+- `rpc/backend/batch.go` (baru), `rpc/backend/backend.go`,
+  `rpc/namespaces/ethereum/eth/api.go` — dari `build/evm-fork-phase1/`
+  ke `repo/evm/` (salinan modul Cosmos EVM v0.7.4 + perubahan Fase 1).
+- `repo/chain/go.mod` + `build/blackchain-sdk54-bkc/go.mod`: 1 baris
+  `replace github.com/cosmos/evm => ../evm` (repo) /
+  `=> ../evm-merged` (working copy).
+- Salinan working copy: `build/evm-merged/` — isi IDENTIK dengan
+  `repo/evm/` (terverifikasi `diff -r` kosong). Fork Sesi 9
+  (`build/blackchain-phase1/`, `build/evm-fork-phase1/`) TIDAK disentuh.
+- Lock internal mempool Krakatoa TIDAK diubah (tetap Fase 1b).
+
+**Penyusutan modul evm untuk repo (agar push snapshot tetap muat):**
+modul penuh 16.192.554 byte / 1.287 file — digabung repo (~1,7 MB)
+melewati batas snapshot GitHub (16 MiB total). Yang disimpan: semua
+`*.go` kecuali `*_test.go`, `go.mod`/`go.sum`, semua `*.json` +
+`*.toml` (target `go:embed`: `contracts/solidity/*.json`,
+`precompiles/*/abi.json`, `server/config/migration/v0.50-app.toml`),
+`LICENSE`/`NOTICE`. Hasil: 10.449.481 byte / 834 file; snapshot repo
+total ~12,1 MB — masih di bawah batas. Yang hilang: unit test modul
+evm itu sendiri (bukan tes BLACKCHAIN), dokumen, tooling dev, dan
+sumber Solidity (hanya JSON terkompilasi yang dipakai). Build bersih
+dari salinan terpisah MEMBUKTIKAN penyusutan ini cukup (lihat bawah).
+
+**Build (salinan bersih `~/workspace/.build-tmp/merge-build/`, tata
+letak repo `chain/` + `evm/`):** `go vet` 0 temuan (dua paket evm di
+atas); `go build -p 2` lolos; binary `blackchaind-merged`
+199.314.856 byte (`version --long` OK). Go 1.27.4,
+`TMPDIR=$HOME/workspace/.build-tmp/go-tmp` (pelajaran F35).
+
+**Uji (devnet 1 validator terpisah, home
+`~/workspace/.build-tmp/merge-test/cosmos`, JSON-RPC 127.0.0.1:8855,
+Comet 26977; node live TIDAK disentuh):**
+- `eth_chainId` 0x1352900 ✓; endpoint `eth_sendRawTransactionBatch`
+  ada (batch kosong → error `empty batch`; dan TIDAK ada di devnet
+  Jalur A 8555 — bukti endpoint ini khusus hasil merge) ✓.
+- Uji fungsional (adaptasi `repo/scripts/phase1-functional-test.py`,
+  semua LOLOS): transfer tunggal tx `0x41c12bb8…`, receipt blok 6,
+  status 0x1, +1.000.000 wei; batch 10/10 dalam 0,01 dtk, semua receipt
+  0x1; batch 101 ditolak; campuran invalid/valid (valid sukses);
+  duplikat ditolak `duplicate nonce 12 in batch`.
+- Smoke E1 (satu run transfers, 20 akun × 50 = 1.000 tx):
+  **60,14 TPS sustained**, 92,68 tx/dtk submitted, p50 8,71 dtk,
+  0 tx gagal — vs baseline E1 Sesi 9 rata-rata 61,2 TPS (59,82 /
+  60,66 / 63,04): TIDAK ada regresi (selisih dalam noise; saat uji
+  ini 7 node berbagi CPU, bukan 6). Perbandingan relatif, bukan
+  klaim absolut.
+
+**Binary deploy diganti:** `build/blackchaind-sdk54-bkc` kini binary
+hasil merge (sha256
+`43b97dfd9593389529a88c061ca4c4ab0052b873c26774a8d5ff34af58cf2a44`,
+199.314.856 byte); binary lama dicadangkan sebagai
+`build/blackchaind-sdk54-bkc.pre-sesi10` (sha256 `37766ab8…b9f06`).
+Node live TIDAK di-restart — mereka tetap memakai binary lama di
+memori; binary baru dipakai deploy seed VPS berikutnya dan restart
+berikutnya (kompatibel: perubahan hanya di lapisan admission RPC,
+chain-id/genesis tidak berubah).
+**Penangkap deploy:** `repo/testnet/vps-deploy.sh` mengunci
+`BIN_SHA256` ke hash binary lama — tanpa pembaruan, deploy hook akan
+gagal `sha256 BINARY TIDAK COCOK`. Konstanta diperbarui ke hash baru
+(terverifikasi `sha256sum -c` lolos + `bash -n` lolos); kutipan hash
+lama di `vps-runbook.md` dan `docs/21` §2.4 ikut diperbarui (kutipan
+historis tentang build-ulang yang beda hash dibiarkan).
+
+**Kegagalan baru — F41:** `pkill -f 'blackchaind-merged start'`
+untuk mematikan node uji malah membunuh shell pemanggil sendiri
+(pola pkill cocok dengan baris perintah exec itu sendiri) — pelajaran
+yang SAMA dengan F38 Sesi 9, terulang. Node uji tetap mati (pkill
+sempat mengenainya sebelum shell mati); node live TIDAK terdampak
+(pola tidak cocok dengan cmdline mereka). Perbaikan: bunuh PID persis
+(`kill <PID>`) atau pola `pgrep -f '[b]lackchaind-...'`.
+
+**Yang masih menunggu keputusan pemilik:** (B) anggaran hardware +
+node RPC khusus (angka absolut E1/E2 + Fase 1b); (A) alamat vesting;
+(C) genesis final + tanggal buka; (D) persetujuan pengumuman;
+(E) RPC publik read-only. Langkah berikut yang natural: Fase 1b
+(shard txpool internal) atau E1/E2 di hardware layak.

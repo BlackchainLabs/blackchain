@@ -571,3 +571,5 @@ tool (
 )
 
 replace github.com/ethereum/go-ethereum => github.com/cosmos/go-ethereum v1.17.2-cosmos-0
+
+replace github.com/cosmos/evm => ../evm

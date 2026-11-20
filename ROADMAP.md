@@ -1,11 +1,11 @@
 # BLACKCHAIN — Roadmap (Testnet 3 Bulan)
 
-**Status 21 Nov 2026, 02:15 WIB (Sesi 9 selesai, Sesi 12–13 sudah berjalan paralel):** Month 1 SELESAI dan terbukti. EVM live via
+**Status 21 Nov 2026, ~02:45 WIB (Sesi 14 merge Fase 1 selesai; Sesi 9 selesai, Sesi 12–13 berjalan paralel):** Month 1 SELESAI dan terbukti. EVM live via
 Jalur A (chain ID 20261120, denom abkc), repo sudah live di GitHub, website
 live gratis di GitHub Pages. Sesi 8: rehearsal 4 validator terbukti.
 **Sesi 9 SELESAI:** implementasi kode Fase 1 (ingest paralel) + pengukuran
 E1/E2 (`docs/19`) — transfers 61,2 → 87,3 TPS, contract tetap ~49 TPS,
-fork di devnet terpisah (belum di-merge). Sesi 10: **paket testnet publik TERBUKA** (`testnet/`
+fork di devnet terpisah (merge ke Jalur A SELESAI 21 Nov 2026 — lihat docs/19 §7.1). Sesi 10: **paket testnet publik TERBUKA** (`testnet/`
 + draft pengumuman `docs/20`) — tetapi jaringan live masih LOKAL
 (127.0.0.1); belum ada endpoint publik. Sesi 11: paket deploy VPS SIAP
 (script + runbook + `docs/21`); IP VPS diterima (103.147.8.20) tetapi
@@ -88,8 +88,10 @@ akses VPS + deploy seed + domain.
       (1.301 tx/dtk mentah), contract sustained TETAP ~49 TPS (bottleneck
       blok ~5 dtk + eksekusi serial, bukan ingest). Plafon terukur tahap 1
       di VM ini: ~87 TPS transfer / ~49 TPS contract — estimasi lama
-      300–1.000 TPS diganti angka terukur. Yang belum: merge fork ke pohon
-      Jalur A (keputusan pemilik), Fase 1b (shard txpool internal),
+      300–1.000 TPS diganti angka terukur. Merge fork ke pohon Jalur A
+      SELESAI Sesi 14 (`docs/19` §7.1; binary deploy
+      `build/blackchaind-sdk54-bkc` kini berisi Fase 1, sha256 baru
+      `43b97dfd…f2a44`). Yang belum: Fase 1b (shard txpool internal),
       Fase 2–4, E1/E2 di hardware layak (blokir B).
 - [x] Kontrak vesting/claim (Solidity + unit test) — SELESAI Sesi 4–5
       (OpenZeppelin v5.7.0, `forge test` 37/37 lolos); rencana deploy Sepolia
