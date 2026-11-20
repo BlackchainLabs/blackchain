@@ -1,10 +1,11 @@
 # BLACKCHAIN — Roadmap (Testnet 3 Bulan)
 
-**Status 21 Nov 2026, 00:35 WIB (Sesi 12):** Month 1 SELESAI dan terbukti. EVM live via
+**Status 21 Nov 2026, 02:15 WIB (Sesi 9 selesai, Sesi 12–13 sudah berjalan paralel):** Month 1 SELESAI dan terbukti. EVM live via
 Jalur A (chain ID 20261120, denom abkc), repo sudah live di GitHub, website
 live gratis di GitHub Pages. Sesi 8: rehearsal 4 validator terbukti.
-Sesi 9 SEDANG BERJALAN paralel: implementasi kode Fase 1 (ingest paralel)
-di fork terpisah. Sesi 10: **paket testnet publik TERBUKA** (`testnet/`
+**Sesi 9 SELESAI:** implementasi kode Fase 1 (ingest paralel) + pengukuran
+E1/E2 (`docs/19`) — transfers 61,2 → 87,3 TPS, contract tetap ~49 TPS,
+fork di devnet terpisah (belum di-merge). Sesi 10: **paket testnet publik TERBUKA** (`testnet/`
 + draft pengumuman `docs/20`) — tetapi jaringan live masih LOKAL
 (127.0.0.1); belum ada endpoint publik. Sesi 11: paket deploy VPS SIAP
 (script + runbook + `docs/21`); IP VPS diterima (103.147.8.20) tetapi
@@ -78,9 +79,18 @@ akses VPS + deploy seed + domain.
       100.000 TPS tetap TARGET, jarak ~1.100×; laporan `docs/09-benchmark-tps.md`)
 - [x] Jalur ke 100.000 TPS — RISET & DESAIN SELESAI Sesi 6 (`docs/10-tps-architecture-path.md`):
       rekomendasi ingest paralel + hardware dulu, lalu eksekusi paralel Block-STM;
-      plafon tahap 1 ESTIMASI 300–1.000 TPS; urutan Fase 1→4 DISETUJUI pemilik Sesi 7
+      urutan Fase 1→4 DISETUJUI pemilik Sesi 7
       dan desain implementasi Fase 1 selesai (`docs/16-phase1-ingest-design.md`);
-      implementasi kode SEDANG DIKERJAKAN Sesi 9 (subagent lain, fork terpisah)
+      **IMPLEMENTASI KODE FASE 1 SELESAI + TERUKUR Sesi 9** (`docs/19-phase1-implementation.md`,
+      fork `build/blackchain-phase1/` + `build/evm-fork-phase1/`,
+      endpoint `eth_sendRawTransactionBatch` live di devnet fork chain 20261120):
+      transfers 61,2 → **87,3 TPS (+43%)**, submit 95 → 204 tx/dtk
+      (1.301 tx/dtk mentah), contract sustained TETAP ~49 TPS (bottleneck
+      blok ~5 dtk + eksekusi serial, bukan ingest). Plafon terukur tahap 1
+      di VM ini: ~87 TPS transfer / ~49 TPS contract — estimasi lama
+      300–1.000 TPS diganti angka terukur. Yang belum: merge fork ke pohon
+      Jalur A (keputusan pemilik), Fase 1b (shard txpool internal),
+      Fase 2–4, E1/E2 di hardware layak (blokir B).
 - [x] Kontrak vesting/claim (Solidity + unit test) — SELESAI Sesi 4–5
       (OpenZeppelin v5.7.0, `forge test` 37/37 lolos); rencana deploy Sepolia
       SELESAI Sesi 7 (`docs/15-vesting-deployment-plan.md`): owner = multisig

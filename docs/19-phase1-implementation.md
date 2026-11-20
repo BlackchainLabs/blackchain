@@ -99,9 +99,9 @@ go build -p 2 -o /home/hatch/workspace/blackchain/build/blackchaind-phase1 ./cmd
 Hasil: `go vet` lolos (0 temuan), `go build` lolos, binary
 `build/blackchaind-phase1` 199.315.096 bytes.
 
-### Kegagalan build (F34)
+### Kegagalan build (F35)
 
-- **F34 — link gagal "no space left on device".** Penyebab: linker
+- **F35 — link gagal "no space left on device".** Penyebab: linker
   eksternal (gcc) menulis file sementara ke `/tmp/go-link-*`, dan
   `/tmp` adalah tmpfs 512 MB (kegagalan yang sama dengan F20 Sesi 3).
   Perbaikan: `TMPDIR=$HOME/workspace/.build-tmp/go-tmp` (disk
@@ -109,6 +109,10 @@ Hasil: `go vet` lolos (0 temuan), `go build` lolos, binary
   sebelumnya gagal di langkah link dengan pesan yang sama; setelah
   TMPDIR diubah, build lolos. Pelajaran: semua build Go di VM ini
   WAJIB memakai TMPDIR di workspace.
+  (Catatan penomoran: kegagalan ini terjadi SEBELUM reboot F34, tetapi
+  dicatat F35 karena Sesi 12 sudah lebih dulu memakai nomor F34 untuk
+  reboot VM di `docs/23` §5 dan `docs/24` §3.5 — nomor tidak boleh
+  bentrok antar dokumen.)
 
 ## 3. Uji fungsional (fork devnet 1 validator, live)
 
@@ -167,15 +171,128 @@ regresif secara material (selisih dalam noise + CPU VM kini dibagi
 
 ### 5.2 E2 — batch endpoint (`bench-batch.py`)
 
-Prosedur: 1.000 transfer pre-signed (20 akun × 50) di-submit dalam
-10 batch × 100 tx; 500× `increment()` pre-signed dalam 5 batch × 100.
-Signing di luar jendela ukur. 3 run tiap mode:
+Prosedur: tx pre-signed (signing di luar jendela ukur), di-submit dalam
+batch maks 100 tx, jeda antar batch 0,5 dtk (agar laju per pengirim
+tetap di bawah limiter 20 tx/dtk — lihat catatan di bawah). Transfers:
+1.000 tx (20 akun × 50, interleaved). Contract: 500× `increment()`
+(20 akun × 25, interleaved, deploy baru tiap run).
 
-<!-- HASIL E2 — diisi setelah run selesai -->
+| Run | Transfers submit | Transfers sustained | Transfers p50 | Contract submit | Contract sustained | Contract p50 |
+|---|---|---|---|---|---|---|
+| 1 | 202,31 tx/dtk (4,94 dtk) | 85,72 TPS | 4,10 dtk | 230,46 tx/dtk (2,17 dtk) | 4,79 TPS * | 7,58 dtk |
+| 2 | 201,09 tx/dtk (4,97 dtk) | 91,98 TPS | 3,03 dtk | 233,30 tx/dtk (2,14 dtk) | 4,94 TPS * | 4,22 dtk |
+| 3 | 209,40 tx/dtk (4,78 dtk) | 84,22 TPS | 4,22 dtk | 227,65 tx/dtk (2,20 dtk) | 49,56 TPS | 0,98 dtk |
+| 4 | — | — | — | 234,18 tx/dtk (2,14 dtk) | 49,07 TPS | 7,28 dtk |
+| 5 | — | — | — | 121,37 tx/dtk (4,12 dtk, jeda 1,0 dtk) | 39,24 TPS ** | 1,69 dtk |
+| **Rata-rata bersih** | **~204 tx/dtk** | **~87,3 TPS** | **~3,8 dtk** | **~231 tx/dtk** (run 3–4) | **~49,3 TPS** (run 3–4) | — |
+
+\* Run contract 1–2: 476/500 sukses; 24 tx per run DITOLAK saat submit
+(alasan tidak terekam — bug harness F39, lihat §5.4). Angka sustained
+4,79/4,94 TPS di run itu adalah artefak fase receipt yang menunggu
+tx yang tidak pernah ada, BUKAN kapasitas chain.
+\** Run 5 memakai jeda batch 1,0 dtk (uji hipotesis limiter): submit
+lebih lambat sehingga window lebih panjang dan sustained tampak lebih
+rendah — artefak prosedur, bukan kapasitas chain.
+
+**Probe laju submit mentah** (1 batch × 100 tx, tanpa jeda):
+**1.300,95 tx/detik dalam 0,077 dtk** (100/100 sukses). Ini plafon
+mentah endpoint di VM ini — bukan angka sustained.
 
 ### 5.3 Kesimpulan pengukuran
 
-<!-- diisi setelah E2 -->
+Perbandingan E1 → E2 (rata-rata, VM yang sama, 6 node berjalan):
+
+| Metrik | E1 (endpoint tunggal) | E2 (batch) | Perubahan |
+|---|---|---|---|
+| Transfers sustained | 61,2 TPS | 87,3 TPS | **+43%** |
+| Transfers submit rate | 95,3 tx/dtk | ~204 tx/dtk (dibatasi jeda 0,5 dtk); 1.301 tx/dtk mentah | **+114% / ~13,7× mentah** |
+| Transfers latensi p50 | ~8,5 dtk | ~3,8 dtk | **−55%** |
+| Contract sustained | 49,4 TPS | ~49,3 TPS (run bersih 3–4) | **tidak berubah** |
+| Contract submit rate | 110,6 tx/dtk | ~231 tx/dtk (dibatasi jeda) | **+109%** |
+
+**Fase 1 BERHASIL menghilangkan bottleneck ingest.** Submit rate naik
+lebih dari 10× (mentah) dan latensi p50 transfer turun lebih dari
+separuh. Kenaikan sustained transfer (+43%) berhenti di bottleneck
+BERIKUTNYA: produksi blok (~5 dtk/blok, ~430–500 transfer/blok
+teramati di E2 — tiap run 1.000 tx masuk dalam ~2 blok). Untuk
+contract, sustained TIDAK naik sama sekali: 500 panggilan butuh
+~2 blok × ~250 panggilan (gas per panggilan 62.220, eksekusi EVM
+serial) — bottleneck-nya kapasitas blok + eksekusi serial, bukan
+ingest. Inilah yang diramalkan docs/10: ingest paralel menaikkan
+plafon tahap 1 (300–1.000 TPS) hanya bila blok + eksekusi ikut
+dinaikkan; di VM 1,5 CPU ini plafon terukur tahap 1 adalah ~87 TPS
+transfer / ~49 TPS contract. **100.000 TPS tetap TARGET, jarak
+~1.100× — tidak ada klaim baru di sini.**
+
+Catatan batas ukur: (a) angka submit E2 dibatasi jeda antar batch
+(0,5 dtk) yang sengaja dipasang agar tidak menabrak limiter
+20 tx/dtk/pengirim — angka "mentah" 1.301 tx/dtk hanya dari probe
+100 tx; (b) 6 node berbagi 1,5 CPU selama pengukuran; (c) dua reboot
+VM (F35) memotong run E2 yang gagal — angka di atas berasal dari
+run yang selesai penuh setelah reboot terakhir.
+
+### 5.4 Kegagalan yang ditemukan saat pengukuran (F34, F36–F40)
+
+- **F34 — VM reboot 3× (±17:27, ±18:41, dan ±18:46 UTC, 20 Nov 2026;
+  21 Nov 00:27, 01:41, 01:46 WIB).**
+  `uptime` menunjukkan "up 0–1 min" setelah tiap kejadian; semua node
+  (devnet BKC, 4 validator testnet, devnet fork) + proses benchmark
+  mati bersamaan; log tiap node berakhir dengan penutupan graceful
+  (SIGTERM saat shutdown). Bukan `pkill` dan bukan ulah agen (tidak
+  ada yang menjalankan pkill di sesi ini). Data di disk selamat;
+  semua node dinyalakan ulang dari home masing-masing.
+  Kejadian pertama didokumentasikan Sesi 12 sebagai F34
+  (`docs/23` §5, `docs/24` §3.5) beserta runbook pemulihan;
+  Sesi 12 membuat `scripts/restart-local-nodes.sh` (di root blackchain,
+  di luar repo — sengaja TIDAK menyentuh node fork Sesi 9) dan Sesi 13
+  memperluas `repo/scripts/restart-all-nodes.sh` (skrip Sesi 9 ini)
+  agar juga menyalakan faucet + BlackScan. Pemulihan pasca-reboot
+  memakai kedua skrip itu dan terbukti: BKC height 17069, val 1649
+  sinkron, fork 1461. Run E2 yang sedang berjalan ikut terbunuh di
+  reboot pertama dan kedua; angka §5.2–5.3 berasal dari run penuh
+  setelah reboot terakhir.
+- **F36 — pre-check fee cap batch terlalu ketat (bug implementasi).**
+  Versi pertama `prepareBatchTx` menolak fee cap 0 (`Sign() <= 0`),
+  padahal di chain ini (base fee 0 saat blok kosong, minimum-gas-prices
+  0) tx gasPrice 0 VALID dan diterima jalur tunggal. Akibat: batch
+  ditolak 100% saat `eth_gasPrice` sempat 0. Perbaikan: tolak hanya
+  fee cap negatif; floor base fee tetap ditegakkan mempool insert.
+  Diverifikasi: batch 3 tx gasPrice 0 → 3 hash.
+- **F37 — `wait_receipt` di `bench-batch.py` salah membaca envelope
+  RPC.** `Rpc.call` mengembalikan `result` langsung, tapi
+  `wait_receipt` memanggil `.get("result")` pada `None` → AttributeError
+  pada poll pertama saat receipt belum ada. Run E2 pertama (3 run)
+  mati karenanya. Perbaikan: cek `rec` langsung.
+- **F38 — restart node fork membunuh PID yang salah.** `pgrep -f
+  "blackchaind-phase1 start"` mengembalikan PID shell pembungkus
+  (cmdline-nya mengandung pola), bukan node; `kill` mematikan shell,
+  node lama (PID 16598, binary lama) tetap jalan dan start baru gagal
+  bind port — probe masih menunjukkan error lama. Perbaikan: kill PID
+  node persis dari `ps` (cmdline diawali `./build/blackchaind-phase1
+  start`), verifikasi port mati, baru start ulang. Pelajaran: JANGAN
+  `pgrep -f` dengan pola yang juga cocok dengan shell pemanggil.
+- **F39 — harness `bench-batch.py` menghitung hash nol sebagai sukses.**
+  Tx yang ditolak batch kembali sebagai `{hash: 0x0000…0000, error}`.
+  `submit_batches` memeriksa `if r.get("hash")` — string hash nol
+  tidak kosong sehingga lolos sebagai "submitted", lalu fase receipt
+  mem-poll hash nol sampai timeout (45 dtk × 24 tx). Akibat: run
+  contract-batch 1–2 tercatat 476/500 dengan 24 "receipt timeout"
+  dan sustained semu ~4,8 TPS; alasan penolakan 24 tx itu HILANG
+  (tidak terekam). Perbaikan: hash nol = gagal, error-nya dicatat;
+  fase receipt memakai `as_completed` (bukan `map` berurutan) agar
+  satu tx lambat tidak memblokir seluruh fase. Hipotesis utama
+  penolakan 24 tx: limiter 20 tx/dtk/pengirim di ambang batas (5 batch
+  × 5 tx/pengirim dalam 2,1 dtk — bursty dalam window 1 dtk) — BELUM
+  terbukti; run 3–5 bersih dengan prosedur sama. Uji ulang dengan jeda
+  1,0 dtk sudah dilakukan (run 5): bersih 500/500. Tindak lanjut yang
+  tersisa: retry otomatis untuk tx yang ditolak limiter (belum dibuat).
+- **F40 — `bench-batch.py` contract-batch awal: 5 akun × 100 call.**
+  Tiap batch 100 tx berisi 20 tx dari satu pengirim → limiter 20/dtk
+  menolak batch 2–5; hanya ~258/500 call yang masuk (terbukti lewat
+  nilai counter 258 dan nonce akun). Bukan bug chain — prosedur bench
+  yang salah. Perbaikan: 20 akun × 25 call (5/pengirim/batch), sama
+  seperti transfers. Pelajaran: desain beban HARUS menghormati
+  limiter yang diuji, kalau tidak yang terukur adalah limiternya.
 
 ## 6. Yang belum dikerjakan / langkah berikut
 
