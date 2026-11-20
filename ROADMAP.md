@@ -54,8 +54,8 @@ disetujui + desain implementasi Fase 1. Testnet BELUM SIAP dibuka.
 
 ## Month 2 — Public Testnet (berikutnya)
 
-- [ ] Public testnet (chain ID dialokasikan setelah cek registry — bukan 9000/9001)
-- [ ] Parameter validator final: active-set, minimum self-stake, slash %, emisi reward
+- [ ] Public testnet (chain ID 20261120 SUDAH dialokasikan setelah cek registry — bukan 9000/9001; yang kurang: server + IP publik + domain + tanggal buka + pengumuman, lihat `docs/18-testnet-launch-package.md` §7)
+- [x] Parameter validator final — SELESAI Sesi 4 + Sesi 7: active-set maks 100, self-stake 1.000 BKC, slash double-sign 5% / downtime 1%, insentif hibrida (subsidi testnet 10 tBKC/blok, pagu 20 jt tBKC; mainnet fee + 50% fee protokol BlackSwap)
 - [x] Benchmark TPS terukur — SELESAI Sesi 4 (maks ~89 TPS sustained, 0 tx gagal;
       bottleneck ingest ~110 tx/detik + blok ~1 detik + eksekusi serial;
       100.000 TPS tetap TARGET, jarak ~1.100×; laporan `docs/09-benchmark-tps.md`)
@@ -75,15 +75,29 @@ disetujui + desain implementasi Fase 1. Testnet BELUM SIAP dibuka.
       AMM x·y=k, fee 0,30%; kontrak, test & audit BELUM)
 - [x] Spesifikasi faucet + panduan onboarding validator — SELESAI Sesi 6
       (`docs/13-faucet-validator-onboarding.md`; implementasi BELUM)
-- [x] Checklist kesiapan testnet v0.1 — SELESAI Sesi 6, direvisi Sesi 7 (`docs/14-testnet-readiness.md`):
-      testnet BELUM SIAP dibuka; 3 keputusan desain DIPUTUSKAN Sesi 7
-      (insentif hibrida, multisig+timelock, Fase 1→4); yang tersisa 4 hal
-      konkret: alamat vesting, anggaran hardware, genesis final, pengumuman
+- [x] Checklist kesiapan testnet v0.1 — SELESAI Sesi 6, direvisi Sesi 7–8 (`docs/14-testnet-readiness.md`):
+      rehearsal 4 validator TERBUKTI jalan; 13 siap / 6 sebagian / 8 belum /
+      1 diblokir komunikasi; 4 hal konkret tersisa: alamat vesting, anggaran
+      hardware, keputusan genesis final + tanggal buka, pengumuman
+- [x] Testnet rehearsal multi-validator — SELESAI Sesi 8 (`docs/17-testnet-multivalidator.md`):
+      4 validator live di VM lokal (height + hash sama di 4 node, 3 peer
+      tiap node), transfer EVM terkonfirmasi di 4 node (tx `0x562cf1f2…`,
+      blok 6, +1.000.000 wei), liveness 3/4 terbukti (val4 mati → blok
+      7→10; restart → catch-up ke height 15). Kegagalan F32 (duplicate IP)
+      + F33 (3 validator setara tidak bisa liveness 2/3) diperbaiki.
+      INI REHEARSAL, BUKAN testnet publik (semua 127.0.0.1).
+- [x] Genesis testnet (draft) — SELESAI Sesi 8 (`genesis/blackchain-testnet-genesis.json`):
+      4 gentx @ 1.000 BKC, total supply genesis 30.080.000 BKC
+      (pool subsidi 20 jt + faucet 10 jt dipegang alamat operator val1
+      selama rehearsal — WAJIB dipindah sebelum publik), `genesis validate`
+      LOLOS. Keputusan final (pakai vs buat ulang) + tanggal buka masih
+      menunggu pemilik.
+- [x] Paket peluncuran testnet — SELESAI Sesi 8 (`docs/18-testnet-launch-package.md`):
+      runbook seed/validator/faucet/BlackScan + port/firewall + daftar
+      prasyarat publik P1–P7 yang BELUM ADA (server, domain, pengumuman).
 - [x] Skema insentif validator — DIPUTUSKAN pemilik Sesi 7 (`docs/06-validator-params.md` §5):
       testnet subsidi 10 tBKC/blok, 3 bulan, pagu 20 jt tBKC dari bucket reward
       validator; mainnet fee + 50% fee protokol BlackSwap, inflasi tetap 0%
-- [ ] Devnet multi-validator (4 node) — belum pernah dijalankan
-- [ ] Genesis testnet publik final — belum dibuat (butuh keputusan insentif + vesting)
 - [ ] Validator onboarding
 - [ ] Faucet (implementasi)
 - [ ] BlackScan (explorer) live di testnet

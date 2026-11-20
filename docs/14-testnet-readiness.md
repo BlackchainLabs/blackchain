@@ -1,9 +1,11 @@
 # BLACKCHAIN — Checklist Kesiapan Testnet Publik v0.1 (Sesi 6, 2026-11-20)
 
 **Status:** CHECKLIST — diperbarui tiap sesi. "Siap" berarti sudah ada
-bukti (file, node live, atau test lolos), bukan janji. Devnet BKC
-terakhir terverifikasi live 20 Nov 2026 22:xx WIB (height 1815,
-`catching_up: false`, JSON-RPC 127.0.0.1:8555, `eth_blockNumber` 0x717).
+bukti (file, node live, atau test lolos), bukan janji. Testnet rehearsal
+4 validator terakhir terverifikasi live 20 Nov 2026 16:10 UTC
+(height 18, `catching_up: false`, semua node hash sama, JSON-RPC
+127.0.0.1:8655/8665/8675/8685, `eth_blockNumber` cocok) — lihat
+`docs/17`. Devnet BKC 1-validator lama tetap jalan terpisah (8555).
 
 Legenda: ✅ Siap · 🔄 Dikerjakan / sebagian · ⬜ Belum dimulai ·
 🔴 Diblokir keputusan pemilik.
@@ -17,8 +19,8 @@ Legenda: ✅ Siap · 🔄 Dikerjakan / sebagian · ⬜ Belum dimulai ·
 | Identitas BKC (chain ID 20261120, denom abkc) | ✅ Siap | `docs/06-evm-identity-bkc.md`; devnet live |
 | Parameter validator (100 validator, slash 5%/1%, inflasi 0%) | ✅ Siap | `docs/06-validator-params.md`; diterapkan di genesis devnet |
 | Devnet 1 validator stabil | ✅ Siap | Height 1815 saat checklist ini ditulis |
-| Devnet multi-validator (4 node) | ⬜ Belum | Belum pernah dijalankan; butuh sebelum testnet |
-| Genesis testnet publik | 🔄 Dikerjakan | Draft devnet ada; genesis testnet final BELUM dibuat (butuh chain ID final + alokasi awal + subsidi testnet dari `docs/06` §5) |
+| Devnet multi-validator (4 node) | ✅ Siap | Rehearsal 4 validator live Sesi 8 (`docs/17`): height sama + hash sama di 4 node, transfer EVM terkonfirmasi di 4 node, liveness 3/4 terbukti. Pelajaran F32/F33 tercatat. |
+| Genesis testnet publik | ✅ Siap (draft) | `genesis/blackchain-testnet-genesis.json` — 4 gentx @ 1.000 BKC, total supply genesis 30.080.000 BKC, `genesis validate` LOLOS. Masih DRAFT: keputusan final (pakai apa adanya vs buat ulang) + pemindahan pool subsidi/faucet + tanggal buka ada di `docs/18` §7–§8 |
 | Jalur ke 100.000 TPS | 🔄 Dikerjakan | Riset & desain selesai (`docs/10`); urutan Fase 1→4 DISETUJUI Sesi 7; desain implementasi Fase 1 selesai (`docs/16`); implementasi BELUM dimulai; plafon realistis tahap 1 ESTIMASI 300–1.000 TPS |
 | Audit keamanan chain | ⬜ Belum | Wajib sebelum mainnet; belum dijadwalkan |
 
@@ -49,10 +51,11 @@ Legenda: ✅ Siap · 🔄 Dikerjakan / sebagian · ⬜ Belum dimulai ·
 |---|---|---|
 | Repo GitHub publik | ✅ Siap | `BlackchainLabs/blackchain`, head `3b165f3e` (Sesi 4+5) |
 | Roadmap diperbarui | ✅ Siap | `ROADMAP.md` (status 20 Nov 2026 22:19 WIB) |
-| Seed / peer testnet | ⬜ Belum | Belum dipublikasikan; devnet belum buka peer publik |
+| Seed / peer testnet | ⬜ Belum | Belum dipublikasikan; rehearsal hanya 127.0.0.1 — runbook seed ada di `docs/18` §1, tetapi butuh server + IP publik (prasyarat P1) |
 | Monitoring & alert validator | ⬜ Belum | Panduan ada (`docs/13` B.4); sistem monitoring BELUM dibangun |
 | Snapshot sync / state sync | ⬜ Belum | Belum disiapkan |
-| Rencana insiden & upgrade | ⬜ Belum | Belum ditulis |
+| Rencana insiden & upgrade | ⬜ Belum | Belum ditulis (wajib sebelum pembukaan publik, `docs/18` §6) |
+| Paket peluncuran testnet (runbook) | ✅ Siap | `docs/18`: runbook seed/validator/faucet/BlackScan + port/firewall + daftar prasyarat publik P1–P7 |
 | Komunikasi publik (pengumuman testnet) | 🔴 Diblokir | Butuh persetujuan eksplisit pemilik (aturan misi: pengumuman resmi wajib persetujuan) |
 
 ## 5. Blokir — keputusan pemilik yang MASIH TERBUKA (revisi Sesi 7)
@@ -67,7 +70,7 @@ atau menyetujui:
 |---|---|---|---|
 | A | **Alamat & parameter vesting** — 5 alamat anggota multisig, alamat beneficiary tim, timestamp `start`, daftar klaim komunitas + Merkle root | Kontrak tidak bisa di-deploy ke Sepolia | `docs/15` §2 |
 | B | **Anggaran hardware** — siapa menyediakan & membayar server validator tahap 1 (16 vCPU/64 GB/NVMe) + node RPC/archive | Eksperimen E1/E2 Fase 1 tidak bisa dijalankan; baseline TPS tetap di VM 1,5 CPU | `docs/10` §4, `docs/16` §5.1 |
-| C | **Genesis testnet final** — alokasi awal + chain ID final + tanggal buka testnet | Testnet tidak bisa dibuka | `docs/14` §1 |
+| C | **Genesis testnet final + tanggal buka** — draft genesis SUDAH ADA dan teruji (`docs/17` §2, `genesis/blackchain-testnet-genesis.json`); yang tersisa: keputusan pakai-apa-adanya vs buat-ulang, pemindahan pool subsidi (20 jt tBKC) + faucet (10 jt tBKC) dari alamat operator ke community pool/multisig, dan tanggal buka testnet | Testnet tidak bisa dibuka | `docs/18` §7–§8 |
 | D | **Pengumuman resmi testnet** | Butuh persetujuan eksplisit pemilik (aturan misi) | — |
 
 **Aturan yang tetap berlaku:** ketiga keputusan desain di atas diputuskan
@@ -76,14 +79,17 @@ dibuka sebelum blokir A dan C selesai; blokir B tidak menghalangi
 testnet (bisa dibuka dengan plafon ~89 TPS yang jujur) tetapi
 menghalangi pekerjaan performa Fase 1.
 
-## 6. Ringkasan kesiapan (revisi Sesi 7)
+## 6. Ringkasan kesiapan (revisi Sesi 8)
 
-- **Siap:** 11 item · **Dikerjakan/sebagian:** 8 item ·
-  **Belum dimulai:** 8 item · **Diblokir hal konkret pemilik:** 4 item
-  (A alamat vesting, B anggaran hardware, C genesis final, D pengumuman).
-- **Kesimpulan jujur:** testnet BELUM SIAP dibuka hari ini. Yang
-  kurang: genesis testnet final, devnet multi-validator, implementasi
-  BlackScan/Faucet/BlackSwap, seed/peer, monitoring — plus blokir A
-  dan C. Keputusan desain #1/#2/#3 sudah diputuskan (Sesi 7), jadi
-  pekerjaan teknis berikutnya tidak lagi menunggu arah — hanya menunggu
-  alamat, anggaran, dan eksekusi.
+- **Siap:** 13 item · **Dikerjakan/sebagian:** 6 item ·
+  **Belum dimulai:** 8 item · **Diblokir komunikasi:** 1 item
+  (pengumuman) · **Blokir konkret pemilik:** 4 item
+  (A alamat vesting, B anggaran hardware, C keputusan genesis final +
+  tanggal buka, D pengumuman).
+- **Kesimpulan jujur:** testnet chain-nya SUDAH TERBUKTI BERJALAN
+  (rehearsal 4 validator: sinkron, transfer EVM, liveness 3/4), tetapi
+  testnet PUBLIK belum bisa dibuka hari ini. Yang kurang bukan lagi
+  bukti teknis chain — melainkan server + IP publik + domain (P1/P2),
+  faucet + BlackScan yang live (P5), monitoring + rencana insiden (P6),
+  dan keputusan pemilik A/C/D. Keputusan desain #1/#2/#3 sudah
+  diputuskan (Sesi 7); genesis draft sudah ada dan teruji (Sesi 8).
