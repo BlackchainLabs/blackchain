@@ -1,8 +1,10 @@
 # BLACKCHAIN — Roadmap (Testnet 3 Bulan)
 
-**Status 20 Nov 2026, 22:19 WIB:** Month 1 SELESAI dan terbukti. EVM live via
-Jalur A, repo sudah live di GitHub. Sesi lanjutan sedang berjalan: penyelarasan
-denom/chain-ID ke BKC, benchmark TPS terukur, dan kontrak vesting/claim.
+**Status 20 Nov 2026, 22:49 WIB:** Month 1 SELESAI dan terbukti. EVM live via
+Jalur A (chain ID 20261120, denom abkc), repo sudah live di GitHub (head
+`fb547c42`). Sesi 7 selesai: tiga keputusan pemilik diwujudkan — insentif
+validator hibrida, vesting multisig+timelock, arsitektur TPS Fase 1→4
+disetujui + desain implementasi Fase 1. Testnet BELUM SIAP dibuka.
 
 > Prinsip: tidak ada angka yang dikarang. TPS, testnet, dan mainnet hanya
 > diklaim bila ada bukti pengukuran / node yang berjalan.
@@ -37,8 +39,8 @@ denom/chain-ID ke BKC, benchmark TPS terukur, dan kontrak vesting/claim.
 - [x] Jalur C sebagian: patch SIGN_MODE_TEXTUAL → DIRECT menghilangkan
       error TEXTUAL, tapi fork mentok di 11 error mempool SDK 0.55 —
       bukan jalur utama; Jalur A tetap yang jalan
-- [ ] Penyelarasan denom/chain-ID EVM ke BKC — SEDANG DIKERJAKAN
-      (saat ini 262144/stake; diputuskan chain ID + denom final)
+- [x] Penyelarasan denom/chain-ID EVM ke BKC — SELESAI Sesi 4
+      (chain ID 20261120, denom `abkc`, transfer pertama terbukti)
 
 ## GitHub ✅ LIVE
 
@@ -59,18 +61,27 @@ denom/chain-ID ke BKC, benchmark TPS terukur, dan kontrak vesting/claim.
       100.000 TPS tetap TARGET, jarak ~1.100×; laporan `docs/09-benchmark-tps.md`)
 - [x] Jalur ke 100.000 TPS — RISET & DESAIN SELESAI Sesi 6 (`docs/10-tps-architecture-path.md`):
       rekomendasi ingest paralel + hardware dulu, lalu eksekusi paralel Block-STM;
-      plafon tahap 1 ESTIMASI 300–1.000 TPS; implementasi BELUM dimulai (butuh keputusan pemilik)
+      plafon tahap 1 ESTIMASI 300–1.000 TPS; urutan Fase 1→4 DISETUJUI pemilik Sesi 7
+      dan desain implementasi Fase 1 selesai (`docs/16-phase1-ingest-design.md`);
+      implementasi kode BELUM dimulai (sesi berikutnya)
 - [x] Kontrak vesting/claim (Solidity + unit test) — SELESAI Sesi 4–5
-      (OpenZeppelin v5.7.0, `forge test` 37/37 lolos; deploy Sepolia butuh
-      persetujuan eksplisit pemilik — beneficiary/owner/start belum diputuskan)
+      (OpenZeppelin v5.7.0, `forge test` 37/37 lolos); rencana deploy Sepolia
+      SELESAI Sesi 7 (`docs/15-vesting-deployment-plan.md`): owner = multisig
+      3-of-5 + timelock 48 jam DIPUTUSKAN; deploy menunggu alamat beneficiary/
+      multisig + timestamp `start` (PLACEHOLDER, wajib diisi pemilik)
 - [x] Spesifikasi BlackScan v0.1 — SELESAI Sesi 6 (`docs/11-blackscan-spec.md`;
       Blockscout, API /api/v2; implementasi & deploy BELUM)
 - [x] Spesifikasi BlackSwap v0.1 — SELESAI Sesi 6 (`docs/12-blackswap-spec.md`;
       AMM x·y=k, fee 0,30%; kontrak, test & audit BELUM)
 - [x] Spesifikasi faucet + panduan onboarding validator — SELESAI Sesi 6
       (`docs/13-faucet-validator-onboarding.md`; implementasi BELUM)
-- [x] Checklist kesiapan testnet v0.1 — SELESAI Sesi 6 (`docs/14-testnet-readiness.md`):
-      testnet BELUM SIAP dibuka (11 siap, 6 dikerjakan, 8 belum, 4 diblokir keputusan pemilik)
+- [x] Checklist kesiapan testnet v0.1 — SELESAI Sesi 6, direvisi Sesi 7 (`docs/14-testnet-readiness.md`):
+      testnet BELUM SIAP dibuka; 3 keputusan desain DIPUTUSKAN Sesi 7
+      (insentif hibrida, multisig+timelock, Fase 1→4); yang tersisa 4 hal
+      konkret: alamat vesting, anggaran hardware, genesis final, pengumuman
+- [x] Skema insentif validator — DIPUTUSKAN pemilik Sesi 7 (`docs/06-validator-params.md` §5):
+      testnet subsidi 10 tBKC/blok, 3 bulan, pagu 20 jt tBKC dari bucket reward
+      validator; mainnet fee + 50% fee protokol BlackSwap, inflasi tetap 0%
 - [ ] Devnet multi-validator (4 node) — belum pernah dijalankan
 - [ ] Genesis testnet publik final — belum dibuat (butuh keputusan insentif + vesting)
 - [ ] Validator onboarding

@@ -18,8 +18,8 @@ Legenda: ✅ Siap · 🔄 Dikerjakan / sebagian · ⬜ Belum dimulai ·
 | Parameter validator (100 validator, slash 5%/1%, inflasi 0%) | ✅ Siap | `docs/06-validator-params.md`; diterapkan di genesis devnet |
 | Devnet 1 validator stabil | ✅ Siap | Height 1815 saat checklist ini ditulis |
 | Devnet multi-validator (4 node) | ⬜ Belum | Belum pernah dijalankan; butuh sebelum testnet |
-| Genesis testnet publik | 🔄 Dikerjakan | Draft devnet ada; genesis testnet final BELUM dibuat (butuh chain ID final + alokasi awal + keputusan blokir #1/#2) |
-| Jalur ke 100.000 TPS | 🔄 Dikerjakan | Riset & desain selesai (`docs/10`); implementasi BELUM dimulai; plafon realistis tahap 1 ESTIMASI 300–1.000 TPS |
+| Genesis testnet publik | 🔄 Dikerjakan | Draft devnet ada; genesis testnet final BELUM dibuat (butuh chain ID final + alokasi awal + subsidi testnet dari `docs/06` §5) |
+| Jalur ke 100.000 TPS | 🔄 Dikerjakan | Riset & desain selesai (`docs/10`); urutan Fase 1→4 DISETUJUI Sesi 7; desain implementasi Fase 1 selesai (`docs/16`); implementasi BELUM dimulai; plafon realistis tahap 1 ESTIMASI 300–1.000 TPS |
 | Audit keamanan chain | ⬜ Belum | Wajib sebelum mainnet; belum dijadwalkan |
 
 ## 2. Token & kontrak
@@ -27,8 +27,8 @@ Legenda: ✅ Siap · 🔄 Dikerjakan / sebagian · ⬜ Belum dimulai ·
 | Item | Status | Bukti / catatan |
 |---|---|---|
 | BKC ERC-20 + TeamVesting + CommunityClaim | ✅ Siap | `forge test` 37/37 (Sesi 5, OpenZeppelin v5.7.0); TANPA deploy |
-| Deploy vesting/claim ke Sepolia | 🔴 Diblokir | Butuh keputusan pemilik blokir #2 (beneficiary, owner, start, pool klaim, anti-Sybil) + audit |
-| Pemetaan abkc ↔ BKC ERC-20 | 🔴 Diblokir | Bagian dari blokir #2; belum ada desain |
+| Deploy vesting/claim ke Sepolia | 🔄 Dikerjakan | Rencana deploy selesai (`docs/15`): multisig 3-of-5 + timelock 48 jam DIPUTUSKAN. Masih butuh: 5 alamat multisig + beneficiary + timestamp `start` + Merkle root (PLACEHOLDER, wajib diisi pemilik) |
+| Pemetaan abkc ↔ BKC ERC-20 | 🔄 Dikerjakan | Desain diputuskan Sesi 7 (`docs/15` §5): opsi (c) tanpa pemetaan untuk Sepolia; opsi (a) mint-burn kanonik sebagai target mainnet + audit |
 | Audit kontrak vesting/claim | ⬜ Belum | Belum dijadwalkan |
 | Alokasi komunitas 950 jt / tim 50 jt | ✅ Siap (dokumen) | `docs/04-tokenomics.md`; distribusi nyata BELUM terjadi |
 
@@ -55,28 +55,35 @@ Legenda: ✅ Siap · 🔄 Dikerjakan / sebagian · ⬜ Belum dimulai ·
 | Rencana insiden & upgrade | ⬜ Belum | Belum ditulis |
 | Komunikasi publik (pengumuman testnet) | 🔴 Diblokir | Butuh persetujuan eksplisit pemilik (aturan misi: pengumuman resmi wajib persetujuan) |
 
-## 5. Blokir — keputusan pemilik yang MASIH TERBUKA
+## 5. Blokir — keputusan pemilik yang MASIH TERBUKA (revisi Sesi 7)
 
-| # | Keputusan | Dampak bila belum diputuskan | Dokumen |
+Tiga keputusan desain (#1 insentif validator, #2 vesting & kepemilikan,
+#3 arah arsitektur TPS) kini **TERPUTUSKAN di level desain** oleh
+pemilik (Sesi 7, dokumen `docs/06` §5, `docs/15`, `docs/16`). Yang
+tersisa adalah hal-hal konkret yang hanya pemilik yang bisa mengisi
+atau menyetujui:
+
+| # | Yang masih dibutuhkan | Dampak bila belum ada | Dokumen |
 |---|---|---|---|
-| 1 | **Skema insentif validator** — fee-only vs alokasi komunitas / subsidi / inflasi testnet sementara | Validator testnet tidak punya imbal hasil yang jelas; risiko set validator kecil & tidak stabil | `docs/06` (risiko), `docs/14` §4 |
-| 2 | **Vesting & klaim** — alamat beneficiary tim, owner (EOA vs multisig vs timelock), timestamp `start`, pool/daftar klaim komunitas + anti-Sybil, pemetaan abkc ↔ BKC ERC-20 | Kontrak tidak bisa di-deploy ke Sepolia; distribusi tidak bisa dimulai | `docs/07` §10 |
-| 3 | **Arah arsitektur ke 100.000 TPS** — setujui urutan Fase 1→4 (`docs/10` §7) + anggaran hardware + persetujuan fork Cosmos EVM | Pekerjaan performa tidak bisa dimulai; klaim TPS tetap di ~89 TPS terukur | `docs/10` §9 |
+| A | **Alamat & parameter vesting** — 5 alamat anggota multisig, alamat beneficiary tim, timestamp `start`, daftar klaim komunitas + Merkle root | Kontrak tidak bisa di-deploy ke Sepolia | `docs/15` §2 |
+| B | **Anggaran hardware** — siapa menyediakan & membayar server validator tahap 1 (16 vCPU/64 GB/NVMe) + node RPC/archive | Eksperimen E1/E2 Fase 1 tidak bisa dijalankan; baseline TPS tetap di VM 1,5 CPU | `docs/10` §4, `docs/16` §5.1 |
+| C | **Genesis testnet final** — alokasi awal + chain ID final + tanggal buka testnet | Testnet tidak bisa dibuka | `docs/14` §1 |
+| D | **Pengumuman resmi testnet** | Butuh persetujuan eksplisit pemilik (aturan misi) | — |
 
-**Aturan:** ketiga blokir di atas TIDAK BOLEH diputuskan oleh AI.
-Testnet publik TIDAK dibuka sebelum blokir #1 diputuskan (validator
-perlu tahu imbalannya) dan #2 diputuskan (kontrak perlu di-deploy).
-Blokir #3 tidak menghalangi testnet — testnet bisa dibuka dengan
-plafon ~89 TPS yang jujur — tetapi menghalangi klaim 100.000 TPS.
+**Aturan yang tetap berlaku:** ketiga keputusan desain di atas diputuskan
+oleh pemilik lewat Muse utama, bukan oleh AI. Testnet publik TIDAK
+dibuka sebelum blokir A dan C selesai; blokir B tidak menghalangi
+testnet (bisa dibuka dengan plafon ~89 TPS yang jujur) tetapi
+menghalangi pekerjaan performa Fase 1.
 
-## 6. Ringkasan kesiapan
+## 6. Ringkasan kesiapan (revisi Sesi 7)
 
-- **Siap:** 11 item · **Dikerjakan/sebagian:** 6 item ·
-  **Belum dimulai:** 8 item · **Diblokir keputusan pemilik:** 4 item
-  (3 keputusan + pengumuman resmi).
+- **Siap:** 11 item · **Dikerjakan/sebagian:** 8 item ·
+  **Belum dimulai:** 8 item · **Diblokir hal konkret pemilik:** 4 item
+  (A alamat vesting, B anggaran hardware, C genesis final, D pengumuman).
 - **Kesimpulan jujur:** testnet BELUM SIAP dibuka hari ini. Yang
   kurang: genesis testnet final, devnet multi-validator, implementasi
-  BlackScan/Faucet/BlackSwap, seed/peer, monitoring — plus keputusan
-  pemilik #1 dan #2. Perkiraan kasar (bukan janji): setelah blokir #1
-  dan #2 diputuskan, pekerjaan teknis tersisa berada di orde
-  minggu–bulan, bukan hari — dan harus diukur ulang di tiap langkah.
+  BlackScan/Faucet/BlackSwap, seed/peer, monitoring — plus blokir A
+  dan C. Keputusan desain #1/#2/#3 sudah diputuskan (Sesi 7), jadi
+  pekerjaan teknis berikutnya tidak lagi menunggu arah — hanya menunggu
+  alamat, anggaran, dan eksekusi.

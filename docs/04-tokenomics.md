@@ -38,6 +38,19 @@ tetap 950.000.000 BKC.
 | Cadangan komunitas / treasury DAO | 10% dari total supply | 100.000.000 |
 | **Total komunitas** | **95%** | **950.000.000** |
 
+**Revisi Sesi 7 (keputusan pemilik):** dari bucket "Reward validator /
+staking" 400.000.000 BKC, dicadangkan **20.000.000 BKC sebagai pagu
+subsidi testnet** (5% dari bucket, 2% dari total supply) untuk skema
+insentif hibrida dua fase — lihat `docs/06-validator-params.md` §5.
+Tarif subsidi testnet 10 tBKC/blok selama 3 bulan (total bila penuh
+15.552.000 tBKC) dibayar dari community pool genesis, pro-rata
+stake × uptime, dengan sunset otomatis. Sisa bucket (380.000.000 BKC)
+tetap untuk reward validator jangka panjang — mekanismenya (apakah
+tetap sebagai cadangan komunitas atau dialokasikan lewat governance)
+diputuskan sebelum mainnet. Inflasi tetap 0%: semua dana ini adalah
+bagian dari max supply 1 miliar yang dicetak di genesis, bukan mint
+baru.
+
 ## 4. Vesting tim 5% (diusulkan)
 
 - Cliff: 3 bulan setelah mainnet (diusulkan).
@@ -67,7 +80,10 @@ ini pekerjaan Month 2.
 
 ## 7. Yang belum diputuskan
 
-- Laju emisi reward validator per blok/tahun.
+- ~~Laju emisi reward validator per blok/tahun~~ — **DIPUTUSKAN Sesi 7:**
+  inflasi 0% tetap; subsidi testnet 10 tBKC/blok, 3 bulan, pagu 20 jt
+  tBKC dari bucket reward validator; mainnet fee-only + 50% fee
+  protokol BlackSwap. Detail: `docs/06-validator-params.md` §5.
 - Komisi validator dan pembagian reward delegator.
 - Persentase slash yang tepat.
 - Alamat treasury & vesting contract (TIDAK BOLEH diisi alamat palsu —
