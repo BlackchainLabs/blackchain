@@ -1,13 +1,18 @@
 # BLACKCHAIN — Roadmap (Testnet 3 Bulan)
 
-**Status 20 Nov 2026, 23:52 WIB:** Month 1 SELESAI dan terbukti. EVM live via
+**Status 21 Nov 2026, 00:35 WIB (Sesi 12):** Month 1 SELESAI dan terbukti. EVM live via
 Jalur A (chain ID 20261120, denom abkc), repo sudah live di GitHub, website
 live gratis di GitHub Pages. Sesi 8: rehearsal 4 validator terbukti.
 Sesi 9 SEDANG BERJALAN paralel: implementasi kode Fase 1 (ingest paralel)
 di fork terpisah. Sesi 10: **paket testnet publik TERBUKA** (`testnet/`
 + draft pengumuman `docs/20`) — tetapi jaringan live masih LOKAL
-(127.0.0.1); belum ada endpoint publik. Testnet yang bisa diakses
-internet masih menunggu VPS + IP publik + domain.
+(127.0.0.1); belum ada endpoint publik. Sesi 11: paket deploy VPS SIAP
+(script + runbook + `docs/21`); IP VPS diterima (103.147.8.20) tetapi
+SSH gagal (port 22/80/443 tidak menjawab) — deploy tertahan. Sesi 12:
+**faucet + BlackScan Lite + monitoring/insiden SELESAI dan JALAN**
+melawan rehearsal lokal; rehearsal 4 validator height 923 (hash sama),
+devnet height 11.359. Testnet yang bisa diakses internet masih menunggu
+akses VPS + deploy seed + domain.
 
 > Prinsip: tidak ada angka yang dikarang. TPS, testnet, dan mainnet hanya
 > diklaim bila ada bukti pengukuran / node yang berjalan.
@@ -61,10 +66,12 @@ internet masih menunggu VPS + IP publik + domain.
       final + README cara bergabung + `seeds.md` jujur; draft pengumuman
       `docs/20` ID+EN, belum diposting). Chain ID 20261120 SUDAH
       dialokasikan setelah cek registry — bukan 9000/9001. Jaringan
-      rehearsal 4 validator live height 472 (Sesi 10, hash sama di 4 node).
-      Yang MASIH kurang agar benar-benar bisa diakses internet: VPS +
-      IP publik + domain (P1/P2), seed publik, faucet + BlackScan live,
-      tanggal buka + persetujuan pengumuman (lihat `docs/18` §7).
+      rehearsal 4 validator live height 923 (Sesi 12, hash sama di 4 node).
+      Sesi 11: paket deploy VPS SIAP; IP VPS 103.147.8.20 diterima tetapi
+      SSH gagal (port 22/80/443 tidak menjawab) — deploy seed tertahan
+      sampai pemilik memeriksa status + firewall VPS. Yang MASIH kurang
+      agar benar-benar bisa diakses internet: akses VPS + deploy seed,
+      domain (P1/P2), tanggal buka + persetujuan pengumuman (lihat `docs/18` §7).
 - [x] Parameter validator final — SELESAI Sesi 4 + Sesi 7: active-set maks 100, self-stake 1.000 BKC, slash double-sign 5% / downtime 1%, insentif hibrida (subsidi testnet 10 tBKC/blok, pagu 20 jt tBKC; mainnet fee + 50% fee protokol BlackSwap)
 - [x] Benchmark TPS terukur — SELESAI Sesi 4 (maks ~89 TPS sustained, 0 tx gagal;
       bottleneck ingest ~110 tx/detik + blok ~1 detik + eksekusi serial;
@@ -73,24 +80,42 @@ internet masih menunggu VPS + IP publik + domain.
       rekomendasi ingest paralel + hardware dulu, lalu eksekusi paralel Block-STM;
       plafon tahap 1 ESTIMASI 300–1.000 TPS; urutan Fase 1→4 DISETUJUI pemilik Sesi 7
       dan desain implementasi Fase 1 selesai (`docs/16-phase1-ingest-design.md`);
-      implementasi kode BELUM dimulai (sesi berikutnya)
+      implementasi kode SEDANG DIKERJAKAN Sesi 9 (subagent lain, fork terpisah)
 - [x] Kontrak vesting/claim (Solidity + unit test) — SELESAI Sesi 4–5
       (OpenZeppelin v5.7.0, `forge test` 37/37 lolos); rencana deploy Sepolia
       SELESAI Sesi 7 (`docs/15-vesting-deployment-plan.md`): owner = multisig
       3-of-5 + timelock 48 jam DIPUTUSKAN; deploy menunggu alamat beneficiary/
       multisig + timestamp `start` (PLACEHOLDER, wajib diisi pemilik)
 - [x] Spesifikasi BlackScan v0.1 — SELESAI Sesi 6 (`docs/11-blackscan-spec.md`;
-      Blockscout, API /api/v2; implementasi & deploy BELUM)
+      Blockscout, API /api/v2) + **IMPLEMENTASI BlackScan Lite SELESAI Sesi 12**
+      (`repo/blackscan/`, `docs/23`): indexer SQLite + UI + API /api/v2,
+      913 blok ter-index, lag 0 — BUKAN Blockscout penuh (keputusan pemilik)
 - [x] Spesifikasi BlackSwap v0.1 — SELESAI Sesi 6 (`docs/12-blackswap-spec.md`;
       AMM x·y=k, fee 0,30%; kontrak, test & audit BELUM)
 - [x] Spesifikasi faucet + panduan onboarding validator — SELESAI Sesi 6
-      (`docs/13-faucet-validator-onboarding.md`; implementasi BELUM)
-- [x] Checklist kesiapan testnet v0.1 — SELESAI Sesi 6, direvisi Sesi 7–10 (`docs/14-testnet-readiness.md`):
-      rehearsal 4 validator TERBUKTI jalan (height 472, Sesi 10); 14 siap /
-      7 sebagian / 7 belum / 0 diblokir komunikasi (draft pengumuman sudah
+      (`docs/13-faucet-validator-onboarding.md`) + **IMPLEMENTASI faucet
+      SELESAI Sesi 12** (`repo/faucet/`, `docs/22`): 100 tBKC/klaim,
+      PoW ringan, cooldown 24 jam; uji end-to-end LOLOS (tx `0x8dfe2e3c…`,
+      blok 829, +100 tBKC); kapasitas efektif ~99 klaim (pool 10 jt tBKC
+      di genesis berstatus STAKED — isi ulang butuh keputusan pemilik)
+- [x] Checklist kesiapan testnet v0.1 — SELESAI Sesi 6, direvisi Sesi 7–12 (`docs/14-testnet-readiness.md`):
+      rehearsal 4 validator TERBUKTI jalan (height 923, Sesi 12); 18 siap /
+      6 sebagian / 5 belum / 0 diblokir komunikasi (draft pengumuman sudah
       ada, menunggu persetujuan); 4 hal konkret tersisa: alamat vesting,
       anggaran hardware/server+domain, keputusan genesis final + tanggal
       buka, persetujuan pengumuman
+- [x] Monitoring + rencana insiden (P6) — SELESAI Sesi 12
+      (`repo/monitoring/health-check.py` + `docs/24-monitoring-incident.md`):
+      cek height/hash/fork/halt/faucet/BlackScan tiap run, tulis
+      `data/status.json`, exit 0/1/2; uji 2x LOLOS (OK, 0 masalah).
+      Cron tiap menit + alerting keluar BELUM dipasang (keputusan pemilik)
+- [x] Paket deploy VPS seed — SIAP Sesi 11 (`repo/testnet/vps-deploy.sh` +
+      `vps-runbook.md` + `docs/21`): hanya port P2P 26656 publik;
+      eksekusi tertahan karena SSH ke 103.147.8.20 gagal (port tidak menjawab)
+- [x] Perbaikan `.gitignore` — SELESAI Sesi 12: pola `seed*` yang terlalu
+      lebar dipersempit ke `seed-phrase*`/`seedphrase*`/`*seed-phrase*`
+      sehingga `testnet/seeds.md` tidak lagi tertangkap; `mnemonic*` tetap
+      diabaikan (terverifikasi `git check-ignore`)
 - [x] Testnet rehearsal multi-validator — SELESAI Sesi 8 (`docs/17-testnet-multivalidator.md`):
       4 validator live di VM lokal (height + hash sama di 4 node, 3 peer
       tiap node), transfer EVM terkonfirmasi di 4 node (tx `0x562cf1f2…`,
@@ -111,8 +136,9 @@ internet masih menunggu VPS + IP publik + domain.
       testnet subsidi 10 tBKC/blok, 3 bulan, pagu 20 jt tBKC dari bucket reward
       validator; mainnet fee + 50% fee protokol BlackSwap, inflasi tetap 0%
 - [ ] Validator onboarding
-- [ ] Faucet (implementasi)
-- [ ] BlackScan (explorer) live di testnet
+- [x] Faucet (implementasi) — SELESAI Sesi 12 (lokal, 127.0.0.1:8080)
+- [x] BlackScan (explorer) live di testnet — SELESAI Sesi 12 sebagai
+      BlackScan Lite (lokal, 127.0.0.1:8081); Blockscout penuh belum diputuskan
 - [ ] BlackSwap development
 - [ ] Bridge test environment (tanpa aset nyata, tanpa batas transfer)
 

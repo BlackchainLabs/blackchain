@@ -9,6 +9,17 @@ bukti (file, node live, atau test lolos), bukan janji. Testnet rehearsal
 lama tetap jalan terpisah (8555). **Sesi 10: paket testnet publik
 TERBUKA** (`repo/testnet/` + draft pengumuman `docs/20`) — tetapi
 jaringan live masih lokal; belum ada endpoint publik.
+**Sesi 12 (21 Nov 2026 00:35 WIB / 20 Nov 17:35 UTC):** faucet
+(`repo/faucet/`, 100 tBKC/klaim, uji end-to-end LOLOS), BlackScan Lite
+(`repo/blackscan/`, 913 blok ter-index, lag 0) dan monitoring +
+rencana insiden (`repo/monitoring/health-check.py` + `docs/24`) SELESAI
+dan JALAN melawan rehearsal lokal — semuanya lokal (127.0.0.1).
+Rehearsal 4 validator terakhir terverifikasi 20 Nov 17:35 UTC
+(height 923, hash `2531A37A…` sama di keempat node, `catching_up: false`,
+masing-masing 3 peer). Devnet BKC height 11.359. **Insiden F34:**
+semua proses sempat mati total akibat restart VM/runtime
+(20 Nov ~17:28 UTC) dan dipulihkan Sesi 12 tanpa regenesis
+(`scripts/restart-local-nodes.sh`) — lihat `docs/23` §5 dan `docs/24` §3.5.
 
 Legenda: ✅ Siap · 🔄 Dikerjakan / sebagian · ⬜ Belum dimulai ·
 🔴 Diblokir keputusan pemilik.
@@ -24,7 +35,7 @@ Legenda: ✅ Siap · 🔄 Dikerjakan / sebagian · ⬜ Belum dimulai ·
 | Devnet 1 validator stabil | ✅ Siap | Height 1815 saat checklist ini ditulis |
 | Devnet multi-validator (4 node) | ✅ Siap | Rehearsal 4 validator live Sesi 8 (`docs/17`): height sama + hash sama di 4 node, transfer EVM terkonfirmasi di 4 node, liveness 3/4 terbukti. Pelajaran F32/F33 tercatat. |
 | Genesis testnet publik | ✅ Siap (draft) | `genesis/blackchain-testnet-genesis.json` — 4 gentx @ 1.000 BKC, total supply genesis 30.080.000 BKC, `genesis validate` LOLOS. Masih DRAFT: keputusan final (pakai apa adanya vs buat ulang) + pemindahan pool subsidi/faucet + tanggal buka ada di `docs/18` §7–§8 |
-| Jalur ke 100.000 TPS | 🔄 Dikerjakan | Riset & desain selesai (`docs/10`); urutan Fase 1→4 DISETUJUI Sesi 7; desain implementasi Fase 1 selesai (`docs/16`); implementasi BELUM dimulai; plafon realistis tahap 1 ESTIMASI 300–1.000 TPS |
+| Jalur ke 100.000 TPS | 🔄 Dikerjakan | Riset & desain selesai (`docs/10`); urutan Fase 1→4 DISETUJUI Sesi 7; desain implementasi Fase 1 selesai (`docs/16`); **implementasi kode Fase 1 SEDANG DIKERJAKAN Sesi 9** (subagent lain, fork `build/blackchain-phase1/`, node fork sempat mati saat restart VM F34 — Sesi 12 tidak menyentuh, Sesi 9 yang mengurus); plafon realistis tahap 1 ESTIMASI 300–1.000 TPS |
 | Audit keamanan chain | ⬜ Belum | Wajib sebelum mainnet; belum dijadwalkan |
 
 ## 2. Token & kontrak
@@ -41,9 +52,9 @@ Legenda: ✅ Siap · 🔄 Dikerjakan / sebagian · ⬜ Belum dimulai ·
 
 | Item | Status | Bukti / catatan |
 |---|---|---|
-| BlackScan (explorer) | 🔄 Dikerjakan | Spesifikasi v0.1 selesai (`docs/11`); implementasi & deploy BELUM |
+| BlackScan (explorer) | ✅ Siap (Lite) | **Sesi 12: BlackScan Lite JALAN** (`repo/blackscan/`, `docs/23`) — indexer SQLite + UI + API `/api/v2`, 913 blok ter-index, lag 0, tx Sesi 8 (blok 6) + tx faucet (blok 829) tampil benar. **BUKAN Blockscout penuh** (butuh Elixir + PostgreSQL + archive node — keputusan pemilik, `docs/23` §7) |
 | BlackSwap (DEX AMM) | 🔄 Dikerjakan | Spesifikasi v0.1 selesai (`docs/12`); kontrak, test & audit BELUM |
-| Faucet testnet | 🔄 Dikerjakan | Spesifikasi v0.1 selesai (`docs/13` A); implementasi BELUM; alokasi dana faucet butuh keputusan |
+| Faucet testnet | ✅ Siap (minimal) | **Sesi 12: faucet JALAN** (`repo/faucet/`, `docs/22`) — 100 tBKC/klaim, PoW ringan (bukan hCaptcha), cooldown 24 jam; uji end-to-end LOLOS (tx `0x8dfe2e3c…`, blok 829, +100 tBKC; klaim ke-2 ditolak). Kapasitas efektif ~99 klaim dari saldo cair 9.899,9999 BKC — pool faucet 10 jt tBKC di genesis berstatus STAKED, bukan cair (butuh keputusan pemilik untuk isi ulang) |
 | Black Wallet | ⬜ Belum | Spesifikasi di whitepaper Bab 14; belum ada spec v0.1 |
 | BlackBridge | ⬜ Belum | Desain keamanan di whitepaper Bab 16; TIDAK diluncurkan tanpa audit |
 | Panduan validator | ✅ Siap (dokumen) | `docs/13` B + `VALIDATOR_GUIDE.md` |
@@ -52,12 +63,12 @@ Legenda: ✅ Siap · 🔄 Dikerjakan / sebagian · ⬜ Belum dimulai ·
 
 | Item | Status | Bukti / catatan |
 |---|---|---|
-| Repo GitHub publik | ✅ Siap | `BlackchainLabs/blackchain`, head `3b165f3e` (Sesi 4+5) |
-| Roadmap diperbarui | ✅ Siap | `ROADMAP.md` (status 20 Nov 2026 22:19 WIB) |
-| Seed / peer testnet | 🔄 Dikerjakan | **Paket publik TERBUKA Sesi 10** (`repo/testnet/`: genesis + README + `seeds.md`); daftar seed berisi node ID + alamat 127.0.0.1 rehearsal — seed PUBLIK belum ada (butuh server + IP publik, prasyarat P1). **Sesi 11 (21 Nov 2026): paket deploy VPS SIAP — persiapan, BUKAN selesai** (`repo/testnet/vps-deploy.sh` + `vps-runbook.md` + `docs/21`); VPS sudah disediakan pemilik, tetapi IP/username/OS/konfirmasi kunci SSH belum diterima dan deploy belum dieksekusi — P1 menjadi SEBAGIAN (lihat `docs/21` §6) |
-| Monitoring & alert validator | ⬜ Belum | Panduan ada (`docs/13` B.4); sistem monitoring BELUM dibangun |
+| Repo GitHub publik | ✅ Siap | `BlackchainLabs/blackchain`, remote head `b945142f` (Sesi 11); lokal head `24d5ad1` |
+| Roadmap diperbarui | ✅ Siap | `ROADMAP.md` (status 21 Nov 2026 00:35 WIB, Sesi 12) |
+| Seed / peer testnet | 🔄 Dikerjakan | **Paket publik TERBUKA Sesi 10** (`repo/testnet/`: genesis + README + `seeds.md`); daftar seed berisi node ID + alamat 127.0.0.1 rehearsal — seed PUBLIK belum ada (butuh server + IP publik, prasyarat P1). **Sesi 11 (21 Nov 2026): paket deploy VPS SIAP — persiapan, BUKAN selesai** (`repo/testnet/vps-deploy.sh` + `vps-runbook.md` + `docs/21`); VPS sudah disediakan pemilik, tetapi IP/username/OS/konfirmasi kunci SSH belum diterima dan deploy belum dieksekusi — P1 menjadi SEBAGIAN (lihat `docs/21` §6). **Sesi 12: IP publik diterima (103.147.8.20, Starnet Bandung) tetapi SSH GAGAL — port 22/80/443 tidak menjawab** (kemungkinan VPS belum menyala / firewall menutup port 22); deploy tertahan sampai pemilik memeriksa status + firewall VPS (lihat `docs/21` dan laporan Sesi 11) |
+| Monitoring & alert validator | ✅ Siap (lokal) | **Sesi 12: health-check JALAN** (`repo/monitoring/health-check.py` + `docs/24`) — cek height/hash/fork/halt/faucet/BlackScan, tulis `data/status.json`, exit 0/1/2; uji 2x LOLOS (OK, 0 masalah). Cron tiap menit BELUM dipasang (dipasang Muse utama); alerting keluar (Telegram/email) BELUM ada |
 | Snapshot sync / state sync | ⬜ Belum | Belum disiapkan |
-| Rencana insiden & upgrade | ⬜ Belum | Belum ditulis (wajib sebelum pembukaan publik, `docs/18` §6) |
+| Rencana insiden & upgrade | ✅ Siap | **Sesi 12: `docs/24-monitoring-incident.md`** — runbook halt, fork, validator down, seed down, restart VM (F34), faucet habis, BlackScan lag; pemilik tiap langkah dicatat |
 | Paket peluncuran testnet (runbook) | ✅ Siap | `docs/18`: runbook seed/validator/faucet/BlackScan + port/firewall + daftar prasyarat publik P1–P7 |
 | Komunikasi publik (pengumuman testnet) | 🔄 Dikerjakan | **Draft selesai Sesi 10** (`docs/20`, ID + EN) — DRAFT, BELUM diposting; butuh persetujuan eksplisit pemilik + tanggal buka + alamat seed publik |
 | Paket publik testnet | ✅ Siap | Sesi 10: `repo/testnet/` (genesis + README cara bergabung + `seeds.md` jujur) — publik di GitHub |
@@ -74,7 +85,7 @@ atau menyetujui:
 |---|---|---|---|
 | A | **Alamat & parameter vesting** — 5 alamat anggota multisig, alamat beneficiary tim, timestamp `start`, daftar klaim komunitas + Merkle root | Kontrak tidak bisa di-deploy ke Sepolia | `docs/15` §2 |
 | B | **Anggaran hardware** — siapa menyediakan & membayar server validator tahap 1 (16 vCPU/64 GB/NVMe) + node RPC/archive | Eksperimen E1/E2 Fase 1 tidak bisa dijalankan; baseline TPS tetap di VM 1,5 CPU | `docs/10` §4, `docs/16` §5.1 |
-| B2 | **Akses VPS seed** (bagian dari B) — VPS sudah disediakan pemilik 21 Nov 2026, tetapi IP publik + username SSH + OS/distro + konfirmasi kunci publik di `authorized_keys` belum diterima; deploy seed belum dieksekusi | Tidak ada endpoint publik sampai deploy + verifikasi selesai (runbook §3–§5) | `docs/21`, `repo/testnet/vps-runbook.md` §1 |
+| B2 | **Akses VPS seed** (bagian dari B) — VPS sudah disediakan pemilik 21 Nov 2026, IP publik **103.147.8.20** (Starnet, Bandung) diterima 00:14 WIB, tetapi **SSH GAGAL dari VM ini: port 22/80/443 tidak menjawab** (kemungkinan VPS belum menyala / firewall menutup port 22 / layanan SSH belum aktif); deploy seed belum dieksekusi | Tidak ada endpoint publik sampai VPS bisa diakses + deploy + verifikasi selesai (runbook §3–§5) | `docs/21`, `repo/testnet/vps-runbook.md` §1 |
 | C | **Genesis testnet final + tanggal buka** — draft genesis SUDAH ADA dan teruji (`docs/17` §2, `genesis/blackchain-testnet-genesis.json`); yang tersisa: keputusan pakai-apa-adanya vs buat-ulang, pemindahan pool subsidi (20 jt tBKC) + faucet (10 jt tBKC) dari alamat operator ke community pool/multisig, dan tanggal buka testnet | Testnet tidak bisa dibuka | `docs/18` §7–§8 |
 | D | **Pengumuman resmi testnet** | Butuh persetujuan eksplisit pemilik (aturan misi) | — |
 
@@ -84,22 +95,26 @@ dibuka sebelum blokir A dan C selesai; blokir B tidak menghalangi
 testnet (bisa dibuka dengan plafon ~89 TPS yang jujur) tetapi
 menghalangi pekerjaan performa Fase 1.
 
-## 6. Ringkasan kesiapan (revisi Sesi 10)
+## 6. Ringkasan kesiapan (revisi Sesi 12)
 
-- **Siap:** 14 item · **Dikerjakan/sebagian:** 7 item ·
-  **Belum dimulai:** 7 item · **Diblokir komunikasi:** 0 item (draft
+- **Siap:** 18 item · **Dikerjakan/sebagian:** 6 item ·
+  **Belum dimulai:** 5 item · **Diblokir komunikasi:** 0 item (draft
   pengumuman sudah ada, menunggu persetujuan) · **Blokir konkret
   pemilik:** 4 item (A alamat vesting, B anggaran hardware/server+domain,
   C keputusan genesis final + tanggal buka, D persetujuan pengumuman).
-  **Sesi 11 (21 Nov 2026):** paket deploy seed VPS SIAP (persiapan) —
-  hitungan TIDAK berubah karena belum ada item yang pindah ke Siap;
-  P1 menjadi SEBAGIAN (VPS sudah disediakan pemilik; akses belum
-  diterima; deploy belum dieksekusi) — lihat `docs/21` §6.
+  (Koreksi hitung: total 29 item — ringkasan lama menulis 7 "sebagian"
+  padahal 8; Sesi 12 memindahkan 4 item ke Siap: BlackScan, Faucet,
+  Monitoring, Rencana insiden.)
+  **Sesi 12 (21 Nov 2026 00:35 WIB):** faucet + BlackScan Lite +
+  monitoring/insiden SELESAI dan JALAN (lokal); hitungan berubah
+  14/8/7 → **18/6/5**. P1 tetap SEBAGIAN (IP VPS diterima tetapi SSH
+  gagal — lihat B2).
 - **Kesimpulan jujur:** **paket testnet publik TERBUKA** (genesis +
-  panduan + seed list jujur + draft pengumuman), dan chain-nya SUDAH
-  TERBUKTI BERJALAN (rehearsal 4 validator: sinkron height 472, transfer
-  EVM, liveness 3/4). Tetapi **testnet yang bisa diakses internet BELUM
-  ADA** — yang kurang: server + IP publik + domain (P1/P2), faucet +
-  BlackScan yang live (P5), monitoring + rencana insiden (P6), dan
-  keputusan pemilik A/C/D. Status yang benar hari ini: "paket publik
-  terbuka, jaringan live masih lokal".
+  panduan + seed list jujur + draft pengumuman), chain-nya SUDAH
+  TERBUKTI BERJALAN (rehearsal 4 validator: sinkron height 923,
+  transfer EVM, liveness 3/4), dan **faucet + BlackScan + monitoring
+  kini JALAN melawan rehearsal lokal**. Tetapi **testnet yang bisa
+  diakses internet BELUM ADA** — yang kurang: akses VPS + deploy seed
+  (B2), domain (P2), keputusan pemilik A/C/D, dan BlackSwap.
+  Status yang benar hari ini: "paket publik terbuka, layanan testnet
+  jalan lokal, jaringan live masih lokal".

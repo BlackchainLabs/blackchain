@@ -33,7 +33,18 @@ devnet-data-*/
 *.p12
 id_rsa*
 mnemonic*
-seed*
+seed-phrase*
+seedphrase*
+*seed-phrase*
+
+# Faucet runtime data (riwayat klaim — data operasional, bukan kode)
+faucet/data/
+
+# BlackScan runtime data (SQLite index — data operasional, bukan kode)
+blackscan/data/
+
+# Monitoring runtime data (status JSON + state — data operasional)
+monitoring/data/
 
 # OS / editor
 .DS_Store
