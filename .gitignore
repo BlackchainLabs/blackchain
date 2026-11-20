@@ -1,0 +1,41 @@
+# Binaries & build artifacts
+blackchaind
+blackchain
+*.exe
+*.dll
+*.so
+*.dylib
+/bin/
+/build/
+*.test
+*.out
+
+# Go
+go.sum
+/vendor/
+
+# Node
+node_modules/
+dist/
+
+# Devnet / node data & logs
+devnet-data/
+devnet-data-*/
+*.log
+*.ldb
+*.sst
+
+# Secrets — never commit
+.env
+.env.*
+*.pem
+*.key
+*.p12
+id_rsa*
+mnemonic*
+seed*
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

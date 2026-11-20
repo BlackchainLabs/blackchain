@@ -1,0 +1,16 @@
+BLACKCHAIN — Geth genesis live test log, 20 Nov 2026 (17:53-18:00 WIB)
+Toolchain: Go 1.27.4 (~/go-install), Geth v1.17.10-stable built from source
+  (github.com/ethereum/go-ethereum v1.17.10 tarball), binary /tmp/geth
+Command: geth --datadir workspace/blackchain/devnet-data init genesis/blackchain-devnet-genesis.json
+Result: "Successfully wrote genesis state database=chaindata hash=382efd..1daf9a", exit 0
+Live node test (HTTP 127.0.0.1:18545, --nodiscover --maxpeers 0, no mining):
+  net_version      -> "1337"
+  eth_blockNumber  -> "0x0"  (genesis only; no blocks mined — expected, no miner running)
+  eth_getBalance 0x1111... -> 0xd3c21bcecceda1000000  = 1,000,000 BKC
+  eth_getBalance 0x2222... -> 0x84595161401484a000000 = 10,000,000 BKC
+  eth_getBalance 0x3333... -> 0x295be96e64066972000000 = 50,000,000 BKC
+  Node stopped cleanly: "Blockchain stopped"
+Honest scope: this proves the genesis file is valid go-ethereum genesis and a
+node starts on it with correct allocations. It does NOT prove a Blackchain
+(Cosmos SDK + CometBFT) chain runs — that needs the blockchain-core app,
+which is still unbuilt. No block was produced; no TPS measured.

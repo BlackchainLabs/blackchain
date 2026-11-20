@@ -1,0 +1,22 @@
+[PASS] genesis JSON valid 
+[PASS] genesis chainId == 1337 (devnet lokal) 
+[PASS] genesis gasLimit == 30_000_000 
+[PASS] genesis total alokasi <= max supply 1e9 BKC (61,000,000 BKC)
+[PASS] tokenomics 950jt + 50jt == 1 miliar BKC 
+[PASS] file ada: 00-mission-log.md 
+[PASS] file ada: docs/01-framework-research.md 
+[PASS] file ada: docs/02-architecture-design.md 
+[PASS] file ada: docs/04-tokenomics.md 
+[PASS] file ada: repo/README.md 
+[PASS] file ada: repo/ROADMAP.md 
+[PASS] file ada: repo/VALIDATOR_GUIDE.md 
+[PASS] file ada: repo/DEVELOPER_GUIDE.md 
+[PASS] file ada: repo/SECURITY.md 
+[PASS] file ada: repo/CONTRIBUTING.md 
+[PASS] file ada: repo/CODE_OF_CONDUCT.md 
+[PASS] file ada: repo/LICENSE 
+[PASS] file ada: repo/whitepaper/WHITEPAPER.md 
+[PASS] whitepaper memuat Bab 1-21 (21/21 judul bab ditemukan)
+
+HASIL: semua check LULUS.
+exit=0

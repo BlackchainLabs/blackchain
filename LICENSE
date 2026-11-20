@@ -1,0 +1,12 @@
+BLACKCHAIN — License (DRAFT v0.1, 20 Nov 2026)
+
+Lisensi yang diusulkan: Apache License 2.0 (SPDX: Apache-2.0) — lisensi yang
+juga dipakai Cosmos SDK dan banyak proyek infrastruktur open-source.
+
+Teks lengkap Apache License 2.0 WAJIB ditambahkan ke file ini sebelum
+publikasi repo ke GitHub. Sampai saat itu, file ini adalah penanda lisensi
+yang diusulkan, bukan lisensi final.
+
+Ringkasan Apache 2.0: memperbolehkan penggunaan, modifikasi, dan distribusi
+komersial, dengan kewajiban mempertahankan pemberitahuan lisensi dan
+menyatakan perubahan; memberikan grant paten eksplisit.

@@ -1,0 +1,39 @@
+# BLACKCHAIN — Devnet SDK 0.54.5 + Cosmos EVM v0.7.4 — bukti blok pertama
+# Tanggal: 2026-11-20 (UTC 12:57, WIB 19:57)
+# Binary: workspace/blackchain/build/blackchaind-sdk54 (Cosmos SDK v0.54.5, Cosmos EVM v0.7.4)
+# Home:   workspace/blackchain/devnet-data-sdk54/cosmos
+# Ports:  CometBFT RPC 127.0.0.1:26667, P2P 127.0.0.1:26666, gRPC 127.0.0.1:9092,
+#         REST API 127.0.0.1:1318, pprof 127.0.0.1:6061
+#         (port digeser karena devnet SDK 0.55 lama masih jalan di 26657/26656/9090/1317/6060)
+# Start:  blackchaind-sdk54 start --home <home> --minimum-gas-prices 0stake
+#         --rpc.laddr tcp://127.0.0.1:26667 --p2p.laddr tcp://127.0.0.1:26666
+#         --grpc.address 127.0.0.1:9092 --api.address tcp://127.0.0.1:1318
+#         --rpc.pprof_laddr 127.0.0.1:6061
+# Log:    workspace/blackchain/devnet-data-sdk54/cosmos-node.log
+
+## Status RPC (2026-11-20 13:00 UTC, ~3 menit setelah start)
+# curl http://127.0.0.1:26667/status
+# height: 7, catching_up: false, chain: blackchain-1
+
+## Blok 1 (curl http://127.0.0.1:26667/block?height=1)
+# height:      1
+# time:        2026-11-20T12:57:51.148083271Z
+# hash:        4A9F7F04C51299D80936F7C725AA443B90DD0ACBAC4EA8E5DFA1CED2F1EF6C54
+# app_hash:    E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855
+#              (hash state kosong pasca-InitChain — normal untuk blok 1)
+# num_txs:     0
+# chain_id:    blackchain-1
+
+## Genesis (terverifikasi sebelum start)
+# validate-genesis: "File at .../config/genesis.json is a valid genesis file"
+# app_state berisi: evm + feemarket (sebelumnya hilang — diperbaiki, lihat mission log F12)
+# evm params: evm_denom "stake", extended_denom "stake", base_fee feemarket 1e9
+# bank denom_metadata: stake (exponent 0) / BKC (exponent 18), display BKC
+#   -> EVM gas token = stake, 18 desimal, display BKC (selaras tokenomics BKC)
+
+## Catatan
+# - Ini devnet Cosmos SDK + Cosmos EVM (x/vm + x/feemarket ter-wire).
+# - JSON-RPC EVM (eth_blockNumber / eth_chainId) BELUM tersedia pada binary ini:
+#   perintah `start` masih dari Cosmos SDK; swap ke Cosmos EVM server.StartCmd
+#   masih dikerjakan (lihat mission log). JANGAN klaim EVM live sebelum RPC eth menjawab.
+# - Belum ada transaksi, belum ada TPS terukur, bukan testnet/mainnet.

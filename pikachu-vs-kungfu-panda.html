@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pikachu vs Kung Fu Panda — BLACKCHAIN Arcade</title>
+<style>
+  :root { --gold: #ffe600; --volt: #ffd23f; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; color: #eef2ff; font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: radial-gradient(1000px 500px at 20% 0%, #3d2b00 0%, transparent 55%),
+                radial-gradient(1000px 520px at 85% 0%, #0a2e1a 0%, transparent 55%),
+                linear-gradient(180deg, #0b1030 0%, #12082b 55%, #05070f 100%);
+    display: flex; flex-direction: column; align-items: center; padding: 22px 12px 40px; }
+  h1 { margin: 4px 0 2px; text-align: center; font-size: clamp(24px, 5vw, 42px); letter-spacing: 2px;
+    background: linear-gradient(90deg, var(--gold), #fff, #7dffb0);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 16px rgba(255, 210, 63, .5)); }
+  .tag { color: #b9c4de; margin: 2px 0 14px; text-align: center; max-width: 640px; }
+  .tag b { color: var(--gold); } .tag i { color: #7dffb0; font-style: normal; font-weight: 700; }
+  #bars { display: flex; gap: 12px; width: min(880px, 96vw); align-items: stretch; margin-bottom: 8px; }
+  .fighter { flex: 1; }
+  .fname { display: flex; justify-content: space-between; font-weight: 800; letter-spacing: 1px; font-size: 14px; margin-bottom: 4px; }
+  .fname .pika { color: var(--gold); } .fname .po { color: #7dffb0; }
+  .hp { height: 16px; background: rgba(255,255,255,.12); border-radius: 999px; overflow: hidden; border: 1px solid rgba(255,255,255,.25); }
+  .hp > div { height: 100%; transition: width .18s ease; }
+  #hpPika > div { background: linear-gradient(90deg, #ffb400, var(--gold)); }
+  #hpPo > div { background: linear-gradient(90deg, #00c853, #7dffb0); }
+  .en { height: 7px; background: rgba(255,255,255,.10); border-radius: 999px; overflow: hidden; margin-top: 4px; }
+  .en > div { height: 100%; background: #00e5ff; transition: width .18s ease; }
+  #timer { min-width: 64px; text-align: center; font-size: 30px; font-weight: 900; color: #fff;
+    text-shadow: 0 0 14px rgba(255,255,255,.6); align-self: center; }
+  #wrap { position: relative; }
+  canvas { background: linear-gradient(180deg, #1a1440 0%, #241a55 55%, #2c1e0e 78%, #171006 100%);
+    border: 3px solid #3a2f6e; border-radius: 14px; width: min(880px, 96vw); height: auto; display: block;
+    box-shadow: 0 0 50px rgba(90, 60, 255, .35), 0 0 90px rgba(255, 210, 63, .10); }
+  #banner { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; flex-direction: column;
+    background: rgba(3, 4, 14, .55); border-radius: 14px; text-align: center; cursor: pointer; }
+  #banner h2 { font-size: clamp(34px, 8vw, 64px); margin: 0; letter-spacing: 4px; color: var(--gold);
+    text-shadow: 0 0 30px rgba(255, 210, 63, .9), 0 4px 0 #7a5200; }
+  #banner p { color: #dfe7ff; margin: 6px 0 0; font-weight: 700; }
+  .keys { margin-top: 14px; color: #b9c4de; font-size: 14px; text-align: center; line-height: 1.9; }
+  .keys kbd { background: #1a2340; border: 1px solid #33477e; border-bottom-width: 3px; border-radius: 6px; padding: 2px 8px; color: #fff; font-family: inherit; }
+  .btns { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; justify-content: center; }
+  button { background: linear-gradient(180deg, #ffe600, #ffc400); border: 0; border-radius: 10px; padding: 11px 22px;
+    font-weight: 800; cursor: pointer; color: #111; box-shadow: 0 4px 0 #a67c00, 0 8px 24px rgba(255, 230, 0, .3); }
+  button:active { transform: translateY(3px); box-shadow: 0 1px 0 #a67c00; }
+  button.ghost { background: rgba(255,255,255,.08); color: #fff; box-shadow: none; border: 1px solid rgba(255,255,255,.25); }
+  .versus { display: flex; gap: 14px; margin-top: 16px; flex-wrap: wrap; justify-content: center; }
+  .card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.15); border-radius: 12px; padding: 12px 18px; max-width: 400px; }
+  .card h3 { margin: 0 0 6px; } .card p { margin: 0; color: #b9c4de; font-size: 14px; line-height: 1.6; }
+  a { color: #37e0a0; } .foot { margin-top: 18px; color: #66738f; font-size: 13px; }
+</style>
+</head>
+<body>
+<h1>⚡ PIKACHU <span style="color:#fff">VS</span> 🐼 KUNG FU PANDA</h1>
+<p class="tag"><b>Pikachu</b> si petir kuning melawan <i>Po</i> si Pendekar Naga — pertarungan motion penuh efek:
+lompat, pukulan kilat, Thunderbolt, dan jurus putaran naga. Main sendiri atau tonton demo otomatis.</p>
+<div id="bars">
+  <div class="fighter">
+    <div class="fname"><span class="pika">⚡ PIKACHU</span><span id="winsPika">0 menang</span></div>
+    <div class="hp" id="hpPika"><div style="width:100%"></div></div>
+    <div class="en"><div id="enPika" style="width:100%"></div></div>
+  </div>
+  <div id="timer">60</div>
+  <div class="fighter">
+    <div class="fname"><span id="winsPo">0 menang</span><span class="po">PO 🐼</span></div>
+    <div class="hp" id="hpPo"><div style="width:100%"></div></div>
+    <div class="en"><div id="enPo" style="width:100%"></div></div>
+  </div>
+</div>
+<div id="wrap">
+  <canvas id="game" width="880" height="480"></canvas>
+  <div id="banner"><h2 id="bannerTitle">FIGHT!</h2><p id="bannerSub">Klik untuk mulai</p></div>
+</div>
+<div class="keys">
+  <kbd>A</kbd><kbd>D</kbd> / <kbd>←</kbd><kbd>→</kbd> gerak &nbsp;•&nbsp; <kbd>W</kbd> / <kbd>↑</kbd> lompat &nbsp;•&nbsp; <kbd>J</kbd> pukulan kilat &nbsp;•&nbsp; <kbd>K</kbd> Thunderbolt ⚡ (butuh energi)<br>
+  <kbd>Spasi</kbd> ronde baru &nbsp;•&nbsp; Po dikendalikan AI — nyalakan demo otomatis untuk menonton mereka bertarung sendiri
+</div>
+<div class="btns">
+  <button id="fight">🥊 Mulai Bertarung</button>
+  <button class="ghost" id="toggleAuto">🤖 Demo otomatis: OFF</button>
+  <button class="ghost" id="toggleSound">🔊 Suara: ON</button>
+</div>
+<div class="versus">
+  <div class="card"><h3>⚡ Pikachu</h3><p>Petir kuning tercepat di arena. <b>Quick Attack</b> melesat maju memukul, <b>Thunderbolt</b> menyambar dari pipi merahnya. Lemah: badan kecil — sekali kena jurus naga, terpental jauh.</p></div>
+  <div class="card"><h3>🐼 Po — Dragon Warrior</h3><p>Panda besar yang tak terduga lincahnya. <b>Panda Palm</b> menampar keras, <b>Dragon Spin</b> berputar seperti gasing. Lemah: lambat mengejar — jaga jarak dan sambar petir.</p></div>
+</div>
+<p class="foot"><a href="https://github.com/BlackchainLabs/blackchain">← Kembali ke repo BLACKCHAIN</a> &nbsp;•&nbsp; <a href="pacman.html">🟡 Pac-Man Neon →</a></p>
+<script>
+const cv = document.getElementById('game'), ctx = cv.getContext('2d');
+const W = 880, H = 480, GROUND = 420;
+let soundOn = true, auto = false, started = false, over = false, timeLeft = 60, timerAcc = 0;
+let wins = { pika: 0, po: 0 };
+let particles = [], bolts = [], popups = [], shake = 0, flash = 0;
+let audioCtx = null;
+function beep(freq, dur = 0.08, type = 'square', vol = 0.05) {
+  if (!soundOn) return;
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type; o.frequency.value = freq; g.gain.value = vol;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+    o.stop(audioCtx.currentTime + dur);
+  } catch (e) {}
+}
+function zap() { beep(1200, 0.05, 'sawtooth', 0.05); setTimeout(() => beep(1800, 0.06, 'sawtooth', 0.05), 50); setTimeout(() => beep(900, 0.09, 'sawtooth', 0.05), 110); }
+function thud() { beep(90, 0.16, 'sine', 0.09); }
+function burst(x, y, color, n = 14, speed = 3) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2, s = 0.6 + Math.random() * speed;
+    particles.push({x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 1, life: 24 + Math.random() * 16, color});
+  }
+}
+function popup(x, y, text, color) { popups.push({x, y, text, color, life: 46}); }
+function makeFighter(kind, x, dir) {
+  return { kind, x, y: GROUND, vx: 0, vy: 0, dir, hp: 100, en: 100, onGround: true,
+    state: 'idle', stateT: 0, atkCd: 0, punchT: 0, hurtT: 0, walkPhase: 0, spinT: 0, ko: false };
+}
+let pika = makeFighter('pika', 220, 1);
+let po = makeFighter('po', 660, -1);
+const keys = {};
+function resetRound() {
+  pika = makeFighter('pika', 220, 1);
+  po = makeFighter('po', 660, -1);
+  bolts = []; particles = []; popups = []; timeLeft = 60; timerAcc = 0; over = false; shake = 0; flash = 0;
+  updateBars();
+}
+function updateBars() {
+  document.querySelector('#hpPika > div').style.width = Math.max(pika.hp, 0) + '%';
+  document.querySelector('#hpPo > div').style.width = Math.max(po.hp, 0) + '%';
+  document.querySelector('#enPika').style.width = Math.max(pika.en, 0) + '%';
+  document.querySelector('#enPo').style.width = Math.max(po.en, 0) + '%';
+  document.getElementById('timer').textContent = Math.max(Math.ceil(timeLeft), 0);
+  document.getElementById('winsPika').textContent = wins.pika + ' menang';
+  document.getElementById('winsPo').textContent = wins.po + ' menang';
+}
+function showBanner(title, sub, show) {
+  const b = document.getElementById('banner');
+  document.getElementById('bannerTitle').textContent = title;
+  document.getElementById('bannerSub').textContent = sub;
+  b.style.display = show ? 'flex' : 'none';
+}
+function damage(att, def, amount, kx, label, color) {
+  if (def.ko || over) return;
+  def.hp -= amount;
+  def.hurtT = 16; def.state = 'hurt'; def.stateT = 16;
+  def.vx = kx; def.x += kx * 2;
+  burst(def.x, def.y - 60, color || '#fff', 16, 3.5);
+  popup(def.x, def.y - 110, label || ('-' + amount), color || '#ff5d5d');
+  shake = Math.max(shake, 7); thud();
+  if (def.hp <= 0) { def.hp = 0; def.ko = true; def.state = 'ko'; endRound(att); }
+  updateBars();
+}
+function endRound(winner) {
+  over = true;
+  wins[winner.kind === 'pika' ? 'pika' : 'po']++;
+  burst(winner.x, winner.y - 80, '#ffe600', 40, 5);
+  showBanner(winner.kind === 'pika' ? '⚡ PIKACHU MENANG!' : '🐼 PO MENANG!',
+    'Klik untuk ronde berikutnya — atau tekan Spasi', true);
+  beep(523, 0.15, 'square', 0.06); setTimeout(() => beep(659, 0.15, 'square', 0.06), 150);
+  setTimeout(() => beep(784, 0.3, 'square', 0.06), 300);
+  updateBars();
+}
+function thunder(att, def) {
+  if (att.en < 25 || att.atkCd > 0) return;
+  att.en -= 25; att.atkCd = 26; att.state = 'thunder'; att.stateT = 22;
+  bolts.push({ x: att.x + att.dir * 55, y: att.y - 78, dir: att.dir, vx: 9 * att.dir, life: 90, from: att.kind });
+  zap(); flash = 6;
+}
+function punch(att, def) {
+  if (att.atkCd > 0) return;
+  att.atkCd = 22; att.punchT = 12; att.state = 'punch'; att.stateT = 12;
+  att.vx = att.dir * 4;
+  beep(300, 0.06, 'square', 0.05);
+  const reach = att.kind === 'po' ? 95 : 78;
+  const dist = Math.abs(def.x - att.x);
+  if (dist < reach && Math.abs(def.y - att.y) < 90) {
+    const dmg = att.kind === 'po' ? 9 : 7;
+    damage(att, def, dmg, att.dir * 9, att.kind === 'po' ? 'PANDA PALM!' : 'QUICK ATTACK!', att.kind === 'po' ? '#7dffb0' : '#ffe600');
+  }
+}
+function spinPo() {
+  if (po.atkCd > 0) return;
+  po.atkCd = 46; po.spinT = 26; po.state = 'spin'; po.stateT = 26;
+  beep(200, 0.2, 'sawtooth', 0.05);
+}
+function aiControl(f, foe) {
+  const dist = foe.x - f.x;
+  const ad = Math.abs(dist);
+  f.dir = dist > 0 ? 1 : -1;
+  if (f.stateT > 0) return;
+  if (f.kind === 'pika') {
+    if (ad > 260 && f.en >= 25 && Math.random() < 0.06) { thunder(f, foe); return; }
+    if (ad > 90) { f.vx = f.dir * 2.6; f.state = 'walk'; }
+    else if (Math.random() < 0.12) punch(f, foe);
+    else if (Math.random() < 0.02) { f.vy = -11; f.onGround = false; }
+  } else {
+    if (ad > 110) { f.vx = f.dir * 2.1; f.state = 'walk'; }
+    else if (Math.random() < 0.10) punch(f, foe);
+    else if (Math.random() < 0.03) spinPo();
+  }
+}
+function stepFighter(f, foe, isPlayer) {
+  if (f.ko) { f.vx *= 0.9; f.x += f.vx; return; }
+  if (f.hurtT > 0) { f.hurtT--; f.vx *= 0.85; }
+  else if (f.stateT > 0) { f.stateT--; if (f.punchT > 0) f.punchT--; if (f.spinT > 0) f.spinT--; }
+  if (f.atkCd > 0) f.atkCd--;
+  f.en = Math.min(100, f.en + 0.12);
+  if (isPlayer && !auto) {
+    const left = keys['a'] || keys['ArrowLeft'], right = keys['d'] || keys['ArrowRight'];
+    if (left) { f.vx = -3.1; f.dir = -1; if (f.stateT <= 0) f.state = 'walk'; }
+    else if (right) { f.vx = 3.1; f.dir = 1; if (f.stateT <= 0) f.state = 'walk'; }
+    else if (f.stateT <= 0) { f.vx *= 0.7; f.state = 'idle'; }
+    if ((keys['w'] || keys['ArrowUp']) && f.onGround) { f.vy = -12; f.onGround = false; f.state = 'jump'; beep(440, 0.07, 'sine', 0.04); }
+    if (keys['j'] || keys['J']) punch(f, foe);
+    if (keys['k'] || keys['K']) thunder(f, foe);
+  } else {
+    aiControl(f, foe);
+    if (f.stateT <= 0 && Math.abs(f.vx) < 0.4) f.state = 'idle';
+  }
+  if (f.state === 'walk') f.walkPhase += 0.25;
+  if (!f.onGround || f.vy !== 0) { f.vy += 0.6; f.y += f.vy; if (f.y >= GROUND) { f.y = GROUND; f.vy = 0; f.onGround = true; if (f.state === 'jump') f.state = 'idle'; } }
+  f.x += f.vx;
+  if (f.state !== 'walk' && !keys['a'] && !keys['d']) f.vx *= 0.8;
+  f.x = Math.max(50, Math.min(W - 50, f.x));
+  // jurus putar Po mengenai jarak dekat
+  if (f.kind === 'po' && f.spinT > 0 && Math.abs(foe.x - f.x) < 105 && Math.abs(foe.y - f.y) < 90 && foe.hurtT <= 0) {
+    damage(f, foe, 12, f.dir * 13, 'DRAGON SPIN!', '#7dffb0');
+    burst(foe.x, foe.y - 60, '#7dffb0', 20, 4);
+  }
+}
+function stepBolts() {
+  for (const b of bolts) {
+    b.x += b.vx; b.life--;
+    if (Math.random() < 0.7) particles.push({x: b.x + (Math.random() - 0.5) * 26, y: b.y + (Math.random() - 0.5) * 26, vx: (Math.random() - 0.5), vy: (Math.random() - 0.5), life: 12, color: '#ffe600'});
+    const target = b.from === 'pika' ? po : pika;
+    if (!target.ko && Math.abs(target.x - b.x) < 42 && Math.abs((target.y - 60) - b.y) < 55) {
+      damage(b.from === 'pika' ? pika : po, target, 11, b.dir * 8, 'THUNDERBOLT!', '#ffe600');
+      burst(b.x, b.y, '#ffe600', 24, 4); flash = 8; b.life = 0;
+    }
+  }
+  bolts = bolts.filter(b => b.life > 0 && b.x > 0 && b.x < W);
+}
+function tick() {
+  if (!started || over) return;
+  timerAcc += 1 / 60;
+  if (timerAcc >= 1) { timerAcc = 0; timeLeft--; document.getElementById('timer').textContent = Math.max(timeLeft, 0); if (timeLeft <= 0) { over = true; const w = pika.hp === po.hp ? null : (pika.hp > po.hp ? pika : po); if (w) endRound(w); else { showBanner('⏱️ SERI!', 'Waktu habis — klik untuk ronde berikutnya', true); } return; } }
+  stepFighter(pika, po, true);
+  stepFighter(po, pika, false);
+  stepBolts();
+  particles = particles.filter(p => { p.x += p.vx; p.y += p.vy; p.vy += 0.08; return --p.life > 0; });
+  popups = popups.filter(p => { p.y -= 0.8; return --p.life > 0; });
+  if (shake > 0) shake *= 0.88;
+  if (flash > 0) flash--;
+  updateBars();
+}
+// ---------- gambar ----------
+function drawBackground(t) {
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#241a55'); g.addColorStop(0.62, '#3a2417'); g.addColorStop(0.63, '#241a0e'); g.addColorStop(1, '#120b06');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#ffe9a8';
+  ctx.beginPath(); ctx.arc(740, 66, 30, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,233,168,.25)';
+  ctx.beginPath(); ctx.arc(740, 66, 44, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.75)';
+  for (let i = 0; i < 14; i++) { const sx = (i * 137) % W, sy = 24 + (i * 53) % 120; ctx.fillRect(sx, sy, 3, 3); }
+  // pegunungan + pagoda siluet
+  ctx.fillStyle = '#1a1238';
+  ctx.beginPath(); ctx.moveTo(0, 340); ctx.lineTo(140, 210); ctx.lineTo(300, 340); ctx.lineTo(470, 190); ctx.lineTo(640, 340); ctx.lineTo(790, 230); ctx.lineTo(880, 340); ctx.lineTo(880, 480); ctx.lineTo(0, 480); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#120b06';
+  ctx.fillRect(60, 300, 90, 40); ctx.fillRect(48, 292, 114, 10); ctx.fillRect(56, 262, 98, 32); ctx.fillRect(44, 254, 122, 10);
+  ctx.fillStyle = '#ffe600'; ctx.fillRect(96, 316, 18, 24);
+  // lantai arena
+  ctx.fillStyle = '#3d2b16'; ctx.fillRect(0, GROUND, W, H - GROUND);
+  ctx.fillStyle = '#54391d'; ctx.fillRect(0, GROUND, W, 6);
+  ctx.strokeStyle = 'rgba(255,230,0,.25)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.ellipse(W / 2, GROUND + 34, 330, 16, 0, 0, Math.PI * 2); ctx.stroke();
+}
+function drawPikachu(f, t) {
+  const bob = f.state === 'idle' ? Math.sin(t * 3) * 2 : 0;
+  const x = f.x, y = f.y + bob - (f.onGround ? 0 : 0);
+  const dir = f.dir;
+  const hurt = f.hurtT > 0 && Math.floor(t * 14) % 2 === 0;
+  ctx.save();
+  ctx.translate(x, y); ctx.scale(dir, 1);
+  if (f.state === 'thunder') { ctx.shadowColor = '#ffe600'; ctx.shadowBlur = 30; }
+  if (hurt) ctx.globalAlpha = 0.45;
+  // ekor petir
+  ctx.strokeStyle = '#8a6d00'; ctx.lineWidth = 7; ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(-16, -42); ctx.lineTo(-30, -52); ctx.lineTo(-22, -62); ctx.lineTo(-36, -72); ctx.stroke();
+  ctx.strokeStyle = '#ffe600'; ctx.lineWidth = 5;
+  ctx.beginPath(); ctx.moveTo(-16, -42); ctx.lineTo(-30, -52); ctx.lineTo(-22, -62); ctx.lineTo(-36, -72); ctx.stroke();
+  // kaki
+  const step = f.state === 'walk' ? Math.sin(f.walkPhase) * 5 : 0;
+  ctx.fillStyle = '#ffb400';
+  ctx.beginPath(); ctx.ellipse(-8 + step, -6, 9, 5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(10 - step, -6, 9, 5, 0, 0, Math.PI * 2); ctx.fill();
+  // badan
+  ctx.fillStyle = '#ffe600';
+  ctx.beginPath(); ctx.ellipse(0, -38, 24, 28, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#fff3a0'; ctx.beginPath(); ctx.ellipse(2, -28, 14, 12, 0, 0, Math.PI * 2); ctx.fill();
+  // lengan
+  const punchExt = f.punchT > 0 ? 16 : 0;
+  ctx.strokeStyle = '#ffe600'; ctx.lineWidth = 8; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(16, -46); ctx.lineTo(26 + punchExt, -44 - (f.punchT > 0 ? 4 : 0)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-18, -44); ctx.lineTo(-26, -34); ctx.stroke();
+  // kepala
+  ctx.fillStyle = '#ffe600';
+  ctx.beginPath(); ctx.arc(4, -72, 21, 0, Math.PI * 2); ctx.fill();
+  // telinga
+  ctx.fillStyle = '#ffe600';
+  ctx.beginPath(); ctx.ellipse(-8, -94, 5, 13, -0.35, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(16, -94, 5, 13, 0.35, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#111';
+  ctx.beginPath(); ctx.ellipse(-11, -104, 5, 6, -0.35, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(19, -104, 5, 6, 0.35, 0, Math.PI * 2); ctx.fill();
+  // pipi merah + petir saat thunder
+  ctx.fillStyle = '#ff3b30';
+  ctx.beginPath(); ctx.arc(-12, -66, 5.5, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(20, -66, 5.5, 0, Math.PI * 2); ctx.fill();
+  if (f.state === 'thunder') {
+    ctx.fillStyle = '#fff'; ctx.beginPath();
+    ctx.moveTo(20, -66); ctx.lineTo(34, -84); ctx.lineTo(28, -70); ctx.lineTo(40, -88); ctx.lineTo(26, -62); ctx.closePath(); ctx.fill();
+  }
+  // mata & mulut
+  ctx.fillStyle = '#111';
+  ctx.beginPath(); ctx.arc(-2, -76, 3.4, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(13, -76, 3.4, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(-1, -77, 1.2, 0, Math.PI * 2); ctx.arc(14, -77, 1.2, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#111'; ctx.lineWidth = 1.6;
+  ctx.beginPath(); ctx.arc(6, -64, 4, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+  ctx.restore();
+  if (f.state === 'thunder') { ctx.shadowBlur = 0; }
+}
+function drawPo(f, t) {
+  const bob = f.state === 'idle' ? Math.sin(t * 2.2 + 1) * 2 : 0;
+  const x = f.x, y = f.y + bob;
+  const dir = f.dir;
+  const hurt = f.hurtT > 0 && Math.floor(t * 14) % 2 === 0;
+  ctx.save();
+  ctx.translate(x, y); ctx.scale(dir, 1);
+  if (f.spinT > 0) ctx.rotate(Math.sin(t * 30) * 0.25);
+  if (hurt) ctx.globalAlpha = 0.45;
+  const step = f.state === 'walk' ? Math.sin(f.walkPhase) * 6 : 0;
+  // kaki
+  ctx.fillStyle = '#222';
+  ctx.beginPath(); ctx.ellipse(-16 + step, -8, 13, 8, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(16 - step, -8, 13, 8, 0, 0, Math.PI * 2); ctx.fill();
+  // badan besar
+  ctx.fillStyle = '#f5f5f5';
+  ctx.beginPath(); ctx.ellipse(0, -52, 34, 44, 0, 0, Math.PI * 2); ctx.fill();
+  // sabuk hijau
+  ctx.fillStyle = '#2e7d32'; ctx.fillRect(-32, -34, 64, 12);
+  ctx.fillStyle = '#ffd54f'; ctx.fillRect(-5, -34, 10, 12);
+  // lengan
+  const punchExt = f.punchT > 0 ? 20 : 0;
+  ctx.strokeStyle = '#f5f5f5'; ctx.lineWidth = 13; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(26, -66); ctx.lineTo(40 + punchExt, -62); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-28, -62); ctx.lineTo(-38, -44); ctx.stroke();
+  ctx.fillStyle = '#222';
+  ctx.beginPath(); ctx.arc(42 + punchExt, -62, 8, 0, Math.PI * 2); ctx.fill();
+  // kepala
+  ctx.fillStyle = '#f5f5f5';
+  ctx.beginPath(); ctx.arc(2, -104, 27, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#222';
+  ctx.beginPath(); ctx.arc(-20, -126, 10, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(24, -126, 10, 0, Math.PI * 2); ctx.fill();
+  // bercak mata
+  ctx.fillStyle = '#222';
+  ctx.beginPath(); ctx.ellipse(-8, -108, 9, 12, 0.2, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(14, -108, 9, 12, -0.2, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(-7, -110, 3.6, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(15, -110, 3.6, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#111';
+  ctx.beginPath(); ctx.arc(-7, -110, 1.8, 0, Math.PI * 2); ctx.arc(15, -110, 1.8, 0, Math.PI * 2); ctx.fill();
+  // hidung & mulut
+  ctx.fillStyle = '#111';
+  ctx.beginPath(); ctx.ellipse(4, -96, 5, 3.6, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#111'; ctx.lineWidth = 1.8;
+  ctx.beginPath(); ctx.arc(4, -90, 6, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+  ctx.restore();
+}
+function drawBolt(b, t) {
+  ctx.save();
+  ctx.strokeStyle = '#ffe600'; ctx.lineWidth = 5; ctx.shadowColor = '#ffe600'; ctx.shadowBlur = 18;
+  ctx.beginPath();
+  let x = b.x - b.dir * 40, y = b.y;
+  ctx.moveTo(x, y);
+  for (let i = 1; i <= 5; i++) {
+    x += b.dir * 16;
+    y += (Math.random() - 0.5) * 26;
+    ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.restore();
+}
+function draw() {
+  const t = Date.now() / 1000;
+  ctx.save();
+  if (shake > 0.5) ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
+  drawBackground(t);
+  // bayangan
+  ctx.fillStyle = 'rgba(0,0,0,.4)';
+  ctx.beginPath(); ctx.ellipse(pika.x, GROUND + 6, 34, 7, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(po.x, GROUND + 6, 46, 8, 0, 0, Math.PI * 2); ctx.fill();
+  if (!pika.ko) drawPikachu(pika, t);
+  if (!po.ko) drawPo(po, t);
+  for (const b of bolts) drawBolt(b, t);
+  for (const p of particles) {
+    ctx.globalAlpha = Math.max(p.life / 30, 0);
+    ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.font = 'bold 15px system-ui'; ctx.textAlign = 'center';
+  for (const p of popups) {
+    ctx.globalAlpha = Math.min(p.life / 22, 1);
+    ctx.fillStyle = p.color; ctx.fillText(p.text, p.x, p.y);
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+  if (flash > 0) { ctx.fillStyle = 'rgba(255,255,200,' + (flash / 24) + ')'; ctx.fillRect(0, 0, W, H); }
+}
+function loop() { tick(); draw(); requestAnimationFrame(loop); }
+window.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if (e.key === ' ') { resetRound(); started = true; showBanner('', '', false); e.preventDefault(); }
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) e.preventDefault();
+});
+window.addEventListener('keyup', e => { keys[e.key] = false; });
+function startFight() {
+  resetRound(); started = true; showBanner('FIGHT!', '', true);
+  setTimeout(() => { if (!over) showBanner('', '', false); }, 900);
+  beep(660, 0.1, 'square', 0.05); setTimeout(() => beep(880, 0.14, 'square', 0.05), 120);
+}
+document.getElementById('fight').addEventListener('click', startFight);
+document.getElementById('banner').addEventListener('click', () => { if (over || !started) startFight(); });
+document.getElementById('toggleAuto').addEventListener('click', function () {
+  auto = !auto; this.textContent = '🤖 Demo otomatis: ' + (auto ? 'ON' : 'OFF');
+  if (auto && !started) startFight();
+});
+document.getElementById('toggleSound').addEventListener('click', function () { soundOn = !soundOn; this.textContent = '🔊 Suara: ' + (soundOn ? 'ON' : 'OFF'); });
+updateBars();
+showBanner('⚡ VS 🐼', 'Klik "Mulai Bertarung" — atau nyalakan demo otomatis', true);
+loop();
+</script>
+</body>
+</html>
