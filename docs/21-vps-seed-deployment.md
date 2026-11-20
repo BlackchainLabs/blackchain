@@ -210,3 +210,63 @@ belum), (C) genesis final + tanggal buka, (D) persetujuan pengumuman.
    ini juga layak jadi node RPC/archive nanti, atau hanya seed.
 
 Daftar lengkap + format ada di `vps-runbook.md` §1.
+
+## 8. Sesi 13 (2026-11-21, 00:47–00:56 WIB) — jalur self-deploy: build dari source di VPS
+
+**Latar:** pemilik memerintahkan deploy ("Iya deploy", 00:48 WIB). SSH dari
+VM ini ke VPS `103.147.8.20` dites ulang dan TETAP GAGAL: port 22
+(`Connection closed`, proxy CONNECT kosong), 80, 443 (timeout), 2222,
+22022 (timeout). Tailscale: tidak ada peer selain perangkat Muse sendiri
+— VPS tidak ada di tailnet. Jadi jalur utama (scp oleh Muse, runbook §2)
+tetap terblokir sampai pemilik memeriksa panel VPS (status Running?
+firewall izinkan port 22? username SSH?).
+
+**Upaya transfer binary yang GAGAL:**
+1. Upload binary (199 MB) ke penyimpanan file Muse → `HTTP 413 Payload
+   Too Large` — batas ukuran terlampaui, tidak ada yang terbit.
+2. Upload binary sebagai GitHub Release asset lewat browser → file input
+   browser menolak: "exceed the classification size limit".
+
+**Jalur baru yang DIWUJUDKAN (bukan rencana):** build binary dari source
+DI VPS oleh pemilik, karena source chain ternyata SANGAT KECIL dan
+lengkap:
+- Source scaffold Jalur A (`build/blackchain-sdk54-bkc/`, tanpa `.git`)
+  hanya **68 file / 616 KB** (Go source 316 KB) — mudah masuk repo.
+- **Build bersih dari salinan terpisah TERBUKTI jalan** 2026-11-21 00:54
+  WIB: `go build -o blackchaind ./cmd/blackchaind` dengan Go 1.27.4
+  menghasilkan binary 199.272.864 byte; `--help` mencetak "blackchain
+  node", `version --long` mencetak daftar build deps (plain `version`
+  kosong karena ldflags Makefile tidak dipakai — tidak masalah, script
+  deploy mentolerirnya).
+- **Fakta penting — sha256 binary build-ulang SELALU beda:** build bersih
+  dari source yang sama menghasilkan sha256 `48088178...` vs binary
+  asli `37766ab8...` (metadata build: path, versi Go, ldflags). Karena
+  itu script TIDAK BOLEH memaksa sha256 binary untuk binary build lokal.
+- **Gotcha build di VM ini:** `/tmp` adalah tmpfs 512 MB — link binary
+  200 MB gagal "No space left on device". Solusi: `TMPDIR=$HOME/tmp-go-build`.
+  Gotcha yang sama mungkin terjadi di VPS — BUILD.md memuatnya.
+- Go di VM ini: `~/go-install/go/bin/go` (1.27.4); `go` TIDAK ada di PATH
+  default sesi baru.
+
+**Perubahan yang masuk repo (Sesi 13):**
+- `chain/` — source scaffold lengkap (68 file) + `chain/BUILD.md`
+  (perintah build VPS langkah-demi-langkah + syarat RAM/disk).
+- `testnet/vps-deploy.sh` — flag baru `--allow-local-build`: melewati
+  cek sha256 binary (genesis TETAP dicek); `--dry-run` menampilkan
+  status flag; `bash -n` lolos; dry-run dengan & tanpa flag teruji OK
+  (dengan HOME palsu + binary hasil build bersih). Cabang sha-skip di
+  §1 baru akan teruji pertama kali saat eksekusi di VPS — bila error,
+  pemilik kirim output error-nya.
+- `testnet/vps-runbook.md` — §2b (jalur build dari source), status
+  diperbarui (IP diterima, SSH terblokir), §1 tabel diperbarui, §3
+  menyebut flag.
+- `docs/14` (checklist): status P1 tetap SEBAGIAN; tidak ada perubahan
+  jumlah siap/sebagian/belum — Sesi 13 tidak mengubah kesiapan testnet,
+  hanya menambah jalur deploy.
+
+**Status P1 setelah Sesi 13:** tetap SEBAGIAN — VPS ada + IP diketahui,
+tetapi (a) SSH dari VM terblokir, (b) self-deploy BELUM dijalankan
+pemilik, (c) belum ada seed live yang terverifikasi. Sesi 13 TIDAK
+membuat endpoint publik apa pun; ia hanya menyiapkan jalan kedua menuju
+endpoint itu. Blokir konkret pemilik tetap 4 (A–D), dengan B kini punya
+dua jalur: perbaiki akses SSH untuk Muse, atau jalankan §2b sendiri.

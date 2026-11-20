@@ -4,11 +4,14 @@
 # -----------------------------------------------------------------------------
 # Dijalankan DI VPS (bukan di VM lokal), sebagai user non-root dengan sudo.
 #
-#   ./vps-deploy.sh <IP-PUBLIK-VPS> [--dry-run]
+#   ./vps-deploy.sh <IP-PUBLIK-VPS> [--dry-run] [--allow-local-build]
 #
 #   Contoh: ./vps-deploy.sh 203.0.113.10
 #           ./vps-deploy.sh 203.0.113.10 --dry-run   # cek rencana saja,
 #                                                     # tanpa efek samping
+#           ./vps-deploy.sh 203.0.113.10 --allow-local-build
+#               # binary hasil build sendiri di VPS (lihat chain/BUILD.md);
+#               # cek sha256 binary dilewati, genesis tetap dicek.
 #
 # ARSITEKTUR (lihat docs/21-vps-seed-deployment.md):
 # - VPS ini menjadi SEED NODE + FULL NODE PUBLIK, BUKAN validator.
@@ -23,9 +26,12 @@
 #   Karena itu persistent_peers seed ini KOSONG — seed tidak perlu
 #   peer tetap; peer akan datang sendiri (validator lokal + validator
 #   eksternal yang bergabung lewat seed ini).
-# - Binary TIDAK di-build dari GitHub: scaffold chain TIDAK ADA di repo
-#   (build/ di-gitignore). Binary + genesis DITRANSFER dari VM ini via
-#   scp SEBELUM script ini dijalankan (lihat vps-runbook.md §2).
+# - Binary didapat dengan DUA cara (lihat vps-runbook.md §2):
+#   (a) transfer via scp dari VM pengembang — dicek sha256; atau
+#   (b) build dari source di VPS (repo/chain/, lihat chain/BUILD.md)
+#       + flag --allow-local-build — cek sha256 binary dilewati karena
+#       binary hasil build lokal selalu beda hash-nya.
+#   Genesis SELALU dicek sha256-nya, apa pun cara perolehan binary.
 #
 # PORT (keputusan Sesi 11, sesuai docs/18 §5):
 # - 26656/TCP (P2P) ........... SATU-SATUNYA port yang dibuka ke publik.
@@ -67,18 +73,21 @@ BIN_SHA256="37766ab8672c0d3cfdb6a6640bbb073b6d42abba9e79b7619d3424ec3a6b9f06"
 GENESIS_SHA256="0fbd6b09664011e2ddad0866e58243ed5c2180421636776a34f1a0ac8c152431"
 
 DRY_RUN=0
+ALLOW_LOCAL_BUILD=0
 VPS_IP=""
 DEPLOY_USER="$(id -un)"
 
 usage() {
-  echo "Pakai: $0 <IP-PUBLIK-VPS> [--dry-run]"
+  echo "Pakai: $0 <IP-PUBLIK-VPS> [--dry-run] [--allow-local-build]"
   echo "Contoh: $0 203.0.113.10"
+  echo "        $0 203.0.113.10 --allow-local-build  # binary hasil build sendiri di VPS"
   exit 1
 }
 
 for arg in "$@"; do
   case "$arg" in
     --dry-run) DRY_RUN=1 ;;
+    --allow-local-build) ALLOW_LOCAL_BUILD=1 ;;
     --help|-h) usage ;;
     *) if [ -z "$VPS_IP" ]; then VPS_IP="$arg"; else echo "Argumen tak dikenal: $arg"; usage; fi ;;
   esac
@@ -101,6 +110,9 @@ if [ "$DRY_RUN" = "1" ]; then
   say "  VPS IP ..........: $VPS_IP"
   say "  User ............: ${DEPLOY_USER} (non-root, sudo dipakai untuk ufw + systemd)"
   say "  Binary ..........: $BIN_SRC -> $BIN_DST (cek sha256 $BIN_SHA256)"
+  if [ "$ALLOW_LOCAL_BUILD" = "1" ]; then
+    say "  Cek sha256 binary : DILEWATI (--allow-local-build, binary build lokal)"
+  fi
   say "  Genesis .........: $GENESIS_SRC (cek sha256 $GENESIS_SHA256)"
   say "  Home node .......: $HOME_DIR (init moniker $MONIKER, chain $CHAIN_ID)"
   say "  P2P .............: 0.0.0.0:26656, external_address $VPS_IP:26656"
@@ -131,12 +143,23 @@ if [ -f /etc/os-release ]; then
 fi
 
 # --- 1. Verifikasi file transfer (binary + genesis) --------------------------
-[ -f "$BIN_SRC" ]     || die "binary belum ada di $BIN_SRC — transfer dulu via scp (runbook §2)."
+[ -f "$BIN_SRC" ]     || die "binary belum ada di $BIN_SRC — transfer dulu via scp atau build dari source (runbook §2)."
 [ -f "$GENESIS_SRC" ] || die "genesis belum ada di $GENESIS_SRC — transfer dulu via scp (runbook §2)."
 say "Memverifikasi sha256 binary + genesis ..."
-echo "${BIN_SHA256}  ${BIN_SRC}" | sha256sum -c - || die "sha256 BINARY TIDAK COCOK — jangan lanjut, transfer ulang dari VM."
-echo "${GENESIS_SHA256}  ${GENESIS_SRC}" | sha256sum -c - || die "sha256 GENESIS TIDAK COCOK — jangan lanjut, transfer ulang dari VM."
-say "sha256 cocok."
+if [ "$ALLOW_LOCAL_BUILD" = "1" ]; then
+  # Binary hasil build lokal di VPS SELALU beda hash-nya dari binary hasil
+  # build di VM pengembang (metadata build: path, versi Go, ldflags) —
+  # dibuktikan 2026-11-21: build ulang dari source yang sama menghasilkan
+  # sha256 48088178... vs 37766ab8... — jadi cek sha256 binary dilewati.
+  # Genesis tetap dicek: genesis adalah konsensus, tidak boleh beda.
+  say "ALLOW-LOCAL-BUILD: cek sha256 binary DILEWATI (binary build lokal)."
+  echo "${GENESIS_SHA256}  ${GENESIS_SRC}" | sha256sum -c - || die "sha256 GENESIS TIDAK COCOK — jangan lanjut, unduh ulang dari GitHub."
+  say "sha256 genesis cocok."
+else
+  echo "${BIN_SHA256}  ${BIN_SRC}" | sha256sum -c - || die "sha256 BINARY TIDAK COCOK — jangan lanjut, transfer ulang dari VM."
+  echo "${GENESIS_SHA256}  ${GENESIS_SRC}" | sha256sum -c - || die "sha256 GENESIS TIDAK COCOK — jangan lanjut, transfer ulang dari VM."
+  say "sha256 cocok."
+fi
 
 # --- 2. Instal binary ---------------------------------------------------------
 say "Menginstal binary ke $BIN_DST ..."

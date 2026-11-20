@@ -47,7 +47,7 @@ diumumkan, langkah 4–6 BELUM bisa dilakukan terhadap jaringan live.
 ### 1. Persyaratan hardware minimum
 
 - 8 vCPU / 32 GB RAM / 500 GB NVMe (lihat `docs/13` B.1)
-- Go 1.23+ (untuk build dari source), Git, koneksi internet stabil
+- Go 1.27.4 (go.mod meminta 1.26.7; 1.27.4 yang dipakai & teruji), Git, koneksi internet stabil
 - Port yang dibuka: **26656 (P2P)** ke publik; RPC (26657), EVM JSON-RPC
   (8545), gRPC (9090), REST (1317) **TIDAK BOLEH** dibuka ke publik
   (lihat `docs/18` §5).
@@ -55,20 +55,21 @@ diumumkan, langkah 4–6 BELUM bisa dilakukan terhadap jaringan live.
 ### 2. Bangun binary dari source
 
 Belum ada rilis binary yang sudah dikompilasi. Bangun dari source repo
-ini (pohon Jalur A, SDK v0.54.5 + Cosmos EVM v0.7.4):
+ini (pohon Jalur A, SDK v0.54.5 + Cosmos EVM v0.7.4) — source lengkap
+ada di `chain/` sejak Sesi 13:
 
 ```bash
 git clone https://github.com/BlackchainLabs/blackchain.git
-cd blackchain
-# Ikuti instruksi build di DEVELOPER_GUIDE.md / docs/05-evm-integration.md
-# Binary hasil build: blackchaind (atau blackchaind-sdk54-bkc pada
-# pohon devnet Sesi 3–4 — lihat docs/05 untuk detail build)
+cd blackchain/chain
+mkdir -p ~/tmp-go-build && export TMPDIR=$HOME/tmp-go-build
+# TMPDIR di atas penting: /tmp di sebagian VPS terlalu kecil untuk
+# link binary ~200 MB.
+go build -o blackchaind ./cmd/blackchaind
+./blackchaind --help | head -5
+# Binary hasil build: blackchaind (~199 MB)
 ```
 
-> Catatan: pohon chain (Cosmos SDK scaffold) TIDAK ikut ter-commit di
-> repo ini (di-`gitignore`, lihat `repo/.gitignore`); instruksi build
-> lengkap ada di `docs/05-evm-integration.md`. Bila langkah build tidak
-> cocok dengan repo saat ini, laporkan sebagai issue di GitHub.
+Langkah lengkap + syarat VPS ada di `chain/BUILD.md`.
 
 ### 3. Init node dengan genesis testnet
 

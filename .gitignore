@@ -1,6 +1,8 @@
-# Binaries & build artifacts
-blackchaind
-blackchain
+# Binaries & build artifacts (di-root saja — JANGAN tanpa slash: pola
+# tanpa slash juga menelan chain/cmd/blackchaind/, chain/go.sum, dan
+# chain/{proto,x}/blackchain/ sejak source chain masuk repo di Sesi 13)
+/blackchaind
+/blackchain
 *.exe
 *.dll
 *.so
@@ -11,7 +13,7 @@ blackchain
 *.out
 
 # Go
-go.sum
+/go.sum
 /vendor/
 
 # Node

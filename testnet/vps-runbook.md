@@ -1,8 +1,14 @@
 # BLACKCHAIN — Runbook Deploy Seed Node Publik di VPS (Sesi 11)
 
-**Status 2026-11-21 (Sesi 11): PERSIAPAN — paket deploy sudah ditulis dan
-diuji sintaksnya, tetapi BELUM DIEKSEKUSI.** Belum ada SSH ke VPS mana pun,
-belum ada IP yang diketahui, belum ada node yang dipindah/dimulai ulang.
+**Status 2026-11-21 (Sesi 13): PERSIAPAN — paket deploy sudah ditulis dan
+diuji sintaksnya, tetapi BELUM DIEKSEKUSI.** IP VPS sudah diketahui
+(`103.147.8.20`, diterima 00:14 WIB), tetapi SSH dari VM ini ke VPS
+GAGAL di semua port yang dites (22/80/443/2222/22022, dites ulang
+00:47–00:54 WIB) — kemungkinan VPS belum menyala atau firewall provider
+menutup port 22. Jalur utama (§2, scp oleh Muse) TERBLOKIR sampai
+pemilik memeriksa panel VPS. **Jalur alternatif (§2b): pemilik build
+binary dari source di VPS sendiri** — source chain kini ada di repo
+(`chain/`, sejak Sesi 13) dan script mendukung flag `--allow-local-build`.
 Dokumen desain: `docs/21-vps-seed-deployment.md`.
 
 Chain: `blackchain_20261120-1` · EVM chain ID `20261120` (`0x1352900`) ·
@@ -15,6 +21,7 @@ denom `abkc` · binary Jalur A `build/blackchaind-sdk54-bkc`
 Pemilik kirim IP + username + OS + konfirmasi kunci (§1)
         ↓
 Muse transfer binary + genesis + script dari VM ini via scp (§2)
+   — ATAU pemilik build binary dari source di VPS (§2b, bila SSH dari VM terblokir)
         ↓
 Jalankan vps-deploy.sh DI VPS → seed node hidup, P2P 26656 publik (§3)
         ↓
@@ -34,11 +41,11 @@ pemilik terpisah, lihat `docs/21` §4).
 
 | # | Informasi | Contoh format | Status |
 |---|---|---|---|
-| 1 | IP publik VPS | `203.0.113.10` | ⏳ BELUM DITERIMA |
+| 1 | IP publik VPS | `203.0.113.10` | ✅ DITERIMA 21 Nov 00:14 WIB: `103.147.8.20` (SSH dari VM ini tetap gagal — lihat status di atas) |
 | 2 | Username SSH | `ubuntu` / `root` / nama lain | ⏳ BELUM DITERIMA |
 | 3 | OS / distro + versi | `Ubuntu 24.04` | ⏳ BELUM DITERIMA |
 | 4 | Konfirmasi kunci publik sudah masuk `authorized_keys` | "sudah" + cara cek | ⏳ BELUM DITERIMA |
-| 5 | (Opsional) spesifikasi VPS | vCPU / RAM / disk | ⏳ BELUM DITERIMA |
+| 5 | (Opsional) spesifikasi VPS | vCPU / RAM / disk | ⏳ BELUM DITERIMA (untuk build dari source: RAM min 2 GB, disk kosong min 10 GB) |
 
 Kunci publik Muse (satu-satunya yang boleh dipasang di VPS):
 
@@ -97,6 +104,49 @@ Catatan:
   dan jalankan semua langkah berikut sebagai user itu. Script deploy
   MENOLAK berjalan sebagai root.
 
+## 2b. Alternatif: build binary dari source DI VPS (bila SSH dari VM terblokir)
+
+Dipakai sejak Sesi 13, ketika SSH dari VM ini ke VPS tidak bisa masuk
+(port 22 tidak menjawab) sehingga §2 tidak bisa dijalankan Muse. Source
+chain lengkap kini ada di repo (`chain/`, Cosmos SDK v0.54.5 + Cosmos EVM
+v0.7.4) — build ulang dari source yang sama TERBUKTI menghasilkan binary
+yang jalan (diuji 2026-11-21 di VM ini: build bersih ~30 detik dengan
+module cache hangat, binary ~199 MB, `--help` + `version --long` OK).
+
+```bash
+# Di VPS, sebagai user non-root dengan sudo tanpa password.
+# Syarat: Ubuntu 22.04/24.04 atau Debian 12, RAM min 2 GB (disarankan 4 GB),
+# disk kosong min 10 GB, akses internet.
+# Langkah lengkap + penjelasan ada di chain/BUILD.md — ringkasnya:
+sudo apt update && sudo apt install -y git gcc build-essential curl jq wget
+cd ~
+wget https://go.dev/dl/go1.27.4.linux-amd64.tar.gz
+sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.27.4.linux-amd64.tar.gz
+export PATH=$PATH:/usr/local/go/bin
+go version   # harus: go version go1.27.4 linux/amd64
+git clone https://github.com/BlackchainLabs/blackchain.git
+cd blackchain/chain
+mkdir -p ~/tmp-go-build && export TMPDIR=$HOME/tmp-go-build
+go build -o blackchaind ./cmd/blackchaind   # unduh module pertama kali; 10-30 menit
+./blackchaind --help | head -5
+
+# Siapkan file untuk deploy (§3):
+mkdir -p ~/blackchain-deploy
+cp blackchaind ~/blackchain-deploy/blackchaind
+cd ~/blackchain-deploy
+curl -L -o blackchain-testnet-genesis.json https://raw.githubusercontent.com/BlackchainLabs/blackchain/main/testnet/blackchain-testnet-genesis.json
+curl -L -o vps-deploy.sh https://raw.githubusercontent.com/BlackchainLabs/blackchain/main/testnet/vps-deploy.sh
+chmod +x vps-deploy.sh
+```
+
+**PENTING — flag `--allow-local-build`:** binary hasil build lokal di VPS
+SELALU beda sha256-nya dari binary hasil build di VM pengembang (metadata
+build: path, versi Go, ldflags) — dibuktikan 2026-11-21 (`48088178...` vs
+`37766ab8...`). Karena itu deploy dari binary build-sendiri WAJIB memakai
+flag itu di §3 (`./vps-deploy.sh <IP> --allow-local-build`): cek sha256
+binary dilewati, genesis tetap dicek. Jangan pernah pakai flag ini untuk
+binary dari sumber yang tidak kamu build sendiri.
+
 ## 3. Menjalankan deploy DI VPS
 
 ```bash
@@ -109,12 +159,15 @@ chmod +x vps-deploy.sh
 
 # 2) Bila dry-run OK, jalankan deploy penuh:
 ./vps-deploy.sh <IP-PUBLIK-VPS>
+#    — bila binary hasil build sendiri di VPS (§2b), tambahkan flag:
+#    ./vps-deploy.sh <IP-PUBLIK-VPS> --allow-local-build
 ```
 
 Yang dilakukan script (detail di `vps-deploy.sh` + `docs/21`):
 
 1. Cek OS + dependensi (`curl`, `jq`, `ufw`, `systemctl`, `python3`).
-2. Verifikasi sha256 binary + genesis.
+2. Verifikasi sha256 binary + genesis (cek binary dilewati bila
+   `--allow-local-build`, lihat §2b).
 3. Instal binary ke `/usr/local/bin/blackchaind`.
 4. `blackchaind init blackchain-seed-1 --chain-id blackchain_20261120-1`
    ke `~/.blackchain`, salin genesis, `genesis validate`.
