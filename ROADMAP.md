@@ -1,10 +1,13 @@
 # BLACKCHAIN — Roadmap (Testnet 3 Bulan)
 
-**Status 20 Nov 2026, 22:49 WIB:** Month 1 SELESAI dan terbukti. EVM live via
-Jalur A (chain ID 20261120, denom abkc), repo sudah live di GitHub (head
-`fb547c42`). Sesi 7 selesai: tiga keputusan pemilik diwujudkan — insentif
-validator hibrida, vesting multisig+timelock, arsitektur TPS Fase 1→4
-disetujui + desain implementasi Fase 1. Testnet BELUM SIAP dibuka.
+**Status 20 Nov 2026, 23:52 WIB:** Month 1 SELESAI dan terbukti. EVM live via
+Jalur A (chain ID 20261120, denom abkc), repo sudah live di GitHub, website
+live gratis di GitHub Pages. Sesi 8: rehearsal 4 validator terbukti.
+Sesi 9 SEDANG BERJALAN paralel: implementasi kode Fase 1 (ingest paralel)
+di fork terpisah. Sesi 10: **paket testnet publik TERBUKA** (`testnet/`
++ draft pengumuman `docs/20`) — tetapi jaringan live masih LOKAL
+(127.0.0.1); belum ada endpoint publik. Testnet yang bisa diakses
+internet masih menunggu VPS + IP publik + domain.
 
 > Prinsip: tidak ada angka yang dikarang. TPS, testnet, dan mainnet hanya
 > diklaim bila ada bukti pengukuran / node yang berjalan.
@@ -54,7 +57,14 @@ disetujui + desain implementasi Fase 1. Testnet BELUM SIAP dibuka.
 
 ## Month 2 — Public Testnet (berikutnya)
 
-- [ ] Public testnet (chain ID 20261120 SUDAH dialokasikan setelah cek registry — bukan 9000/9001; yang kurang: server + IP publik + domain + tanggal buka + pengumuman, lihat `docs/18-testnet-launch-package.md` §7)
+- [x] Public testnet — PAKET PUBLIK TERBUKA Sesi 10 (`testnet/`: genesis
+      final + README cara bergabung + `seeds.md` jujur; draft pengumuman
+      `docs/20` ID+EN, belum diposting). Chain ID 20261120 SUDAH
+      dialokasikan setelah cek registry — bukan 9000/9001. Jaringan
+      rehearsal 4 validator live height 472 (Sesi 10, hash sama di 4 node).
+      Yang MASIH kurang agar benar-benar bisa diakses internet: VPS +
+      IP publik + domain (P1/P2), seed publik, faucet + BlackScan live,
+      tanggal buka + persetujuan pengumuman (lihat `docs/18` §7).
 - [x] Parameter validator final — SELESAI Sesi 4 + Sesi 7: active-set maks 100, self-stake 1.000 BKC, slash double-sign 5% / downtime 1%, insentif hibrida (subsidi testnet 10 tBKC/blok, pagu 20 jt tBKC; mainnet fee + 50% fee protokol BlackSwap)
 - [x] Benchmark TPS terukur — SELESAI Sesi 4 (maks ~89 TPS sustained, 0 tx gagal;
       bottleneck ingest ~110 tx/detik + blok ~1 detik + eksekusi serial;
@@ -75,10 +85,12 @@ disetujui + desain implementasi Fase 1. Testnet BELUM SIAP dibuka.
       AMM x·y=k, fee 0,30%; kontrak, test & audit BELUM)
 - [x] Spesifikasi faucet + panduan onboarding validator — SELESAI Sesi 6
       (`docs/13-faucet-validator-onboarding.md`; implementasi BELUM)
-- [x] Checklist kesiapan testnet v0.1 — SELESAI Sesi 6, direvisi Sesi 7–8 (`docs/14-testnet-readiness.md`):
-      rehearsal 4 validator TERBUKTI jalan; 13 siap / 6 sebagian / 8 belum /
-      1 diblokir komunikasi; 4 hal konkret tersisa: alamat vesting, anggaran
-      hardware, keputusan genesis final + tanggal buka, pengumuman
+- [x] Checklist kesiapan testnet v0.1 — SELESAI Sesi 6, direvisi Sesi 7–10 (`docs/14-testnet-readiness.md`):
+      rehearsal 4 validator TERBUKTI jalan (height 472, Sesi 10); 14 siap /
+      7 sebagian / 7 belum / 0 diblokir komunikasi (draft pengumuman sudah
+      ada, menunggu persetujuan); 4 hal konkret tersisa: alamat vesting,
+      anggaran hardware/server+domain, keputusan genesis final + tanggal
+      buka, persetujuan pengumuman
 - [x] Testnet rehearsal multi-validator — SELESAI Sesi 8 (`docs/17-testnet-multivalidator.md`):
       4 validator live di VM lokal (height + hash sama di 4 node, 3 peer
       tiap node), transfer EVM terkonfirmasi di 4 node (tx `0x562cf1f2…`,

@@ -143,3 +143,54 @@ UTC, 20 Nov 2026) di port §1, height terus bertambah. Devnet BKC
 1-validator lama (JSON-RPC 8555) tetap jalan terpisah dan TIDAK
 dipakai untuk rehearsal ini. Node rehearsal HANYA mendengarkan
 127.0.0.1 — tidak ada port yang dibuka ke internet.
+
+## 8. Status pembukaan publik (Sesi 10, 2026-11-20 ~16:52 UTC)
+
+**Verifikasi hidup (Sesi 10):** keempat node MASIH BERJALAN dan sinkron
+penuh — tidak ada yang mati, tidak ada restart yang dibutuhkan.
+
+| Node | Height | Hash | catching_up | Peers |
+|---|---|---|---|---|
+| val1 | 472 | `C73E9F4189E6959D…` | false | 3 |
+| val2 | 472 | `C73E9F4189E6959D…` | false | 3 |
+| val3 | 472 | `C73E9F4189E6959D…` | false | 3 |
+| val4 | 472 | `C73E9F4189E6959D…` | false | 3 |
+
+Hash lengkap: `C73E9F4189E6959D3AD101D79C94ACE716FE7192F177BA434248D51EFDC94398`
+(sama di keempat node). `eth_chainId` = `0x1352900` di keempat endpoint
+EVM (8655/8665/8675/8685). Devnet BKC 1-validator (PID 2980, JSON-RPC
+8555) juga masih berjalan terpisah. Jaringan sudah membuat 472 blok
+sejak blok pertama height 1 (16:08:52 UTC) — ~7 jam berjalan tanpa
+halt, tanpa fork, tanpa blok invalid yang tercatat.
+
+**Apa yang DIBUKA ke publik di Sesi 10:**
+- **Paket publik lengkap** di `repo/testnet/`: salinan genesis testnet
+  final, README cara bergabung, daftar seed node, dan skrip setup
+  (`repo/scripts/setup-testnet-4val.sh`). Semua file ini ada di repo
+  publik GitHub BlackchainLabs/blackchain — siapa pun bisa membaca,
+  mengunduh, dan membangun binary dari source.
+- **Draft pengumuman resmi** di `docs/20-testnet-public-announcement.md`
+  (Bahasa Indonesia + Inggris) — DRAFT, belum diposting ke mana pun,
+  butuh persetujuan eksplisit pemilik sebelum dipublikasikan.
+
+**Apa yang BELUM terbuka (pernyataan jujur):**
+- **Tidak ada endpoint publik yang live.** Keempat node hanya listen
+  di 127.0.0.1 di VM ini; tidak ada port inbound yang terbuka, dan VM
+  ini tidak bisa membuka port publik. Siapa pun di internet HARI INI
+  tidak bisa terhubung ke jaringan ini, menjalankan validator yang
+  sinkron dengan jaringan ini, atau mengirim transaksi ke jaringan ini.
+- **Seed node publik belum ada.** Daftar seed di `repo/testnet/seeds.md`
+  hanya berisi node ID + alamat 127.0.0.1 yang HANYA berlaku di VM ini.
+  Seed publik yang sesungguhnya baru ada setelah VPS + IP publik
+  tersedia (prasyarat P1, `docs/18` §7).
+- **Faucet belum live** (implementasi belum ada, `docs/13` baru spec)
+  dan **BlackScan belum live** (spec saja, `docs/11`).
+
+**Yang masih dibutuhkan agar testnet benar-benar publik (blokir B):**
+VPS dengan IP publik + domain + TLS (P1/P2), lalu seed node + node RPC
+dijalankan di VPS itu mengikuti runbook `docs/18`, faucet + BlackScan
+diimplementasi dan di-deploy (P5), monitoring + rencana insiden (P6),
+dan keputusan pemilik: genesis final + tanggal buka (C) + persetujuan
+pengumuman (D). Tanpa VPS, status yang benar adalah: **"paket testnet
+publik TERBUKA, jaringan live masih LOKAL"** — bukan "testnet publik
+sudah bisa diakses".

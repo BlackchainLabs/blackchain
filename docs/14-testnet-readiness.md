@@ -2,10 +2,13 @@
 
 **Status:** CHECKLIST — diperbarui tiap sesi. "Siap" berarti sudah ada
 bukti (file, node live, atau test lolos), bukan janji. Testnet rehearsal
-4 validator terakhir terverifikasi live 20 Nov 2026 16:10 UTC
-(height 18, `catching_up: false`, semua node hash sama, JSON-RPC
-127.0.0.1:8655/8665/8675/8685, `eth_blockNumber` cocok) — lihat
-`docs/17`. Devnet BKC 1-validator lama tetap jalan terpisah (8555).
+4 validator terakhir terverifikasi live 20 Nov 2026 16:52 UTC
+(height 472, hash `C73E9F4189E6959D…` sama di keempat node,
+`catching_up: false`, JSON-RPC 127.0.0.1:8655/8665/8675/8685,
+`eth_blockNumber` cocok) — lihat `docs/17` §8. Devnet BKC 1-validator
+lama tetap jalan terpisah (8555). **Sesi 10: paket testnet publik
+TERBUKA** (`repo/testnet/` + draft pengumuman `docs/20`) — tetapi
+jaringan live masih lokal; belum ada endpoint publik.
 
 Legenda: ✅ Siap · 🔄 Dikerjakan / sebagian · ⬜ Belum dimulai ·
 🔴 Diblokir keputusan pemilik.
@@ -51,12 +54,13 @@ Legenda: ✅ Siap · 🔄 Dikerjakan / sebagian · ⬜ Belum dimulai ·
 |---|---|---|
 | Repo GitHub publik | ✅ Siap | `BlackchainLabs/blackchain`, head `3b165f3e` (Sesi 4+5) |
 | Roadmap diperbarui | ✅ Siap | `ROADMAP.md` (status 20 Nov 2026 22:19 WIB) |
-| Seed / peer testnet | ⬜ Belum | Belum dipublikasikan; rehearsal hanya 127.0.0.1 — runbook seed ada di `docs/18` §1, tetapi butuh server + IP publik (prasyarat P1) |
+| Seed / peer testnet | 🔄 Dikerjakan | **Paket publik TERBUKA Sesi 10** (`repo/testnet/`: genesis + README + `seeds.md`); daftar seed berisi node ID + alamat 127.0.0.1 rehearsal — seed PUBLIK belum ada (butuh server + IP publik, prasyarat P1) |
 | Monitoring & alert validator | ⬜ Belum | Panduan ada (`docs/13` B.4); sistem monitoring BELUM dibangun |
 | Snapshot sync / state sync | ⬜ Belum | Belum disiapkan |
 | Rencana insiden & upgrade | ⬜ Belum | Belum ditulis (wajib sebelum pembukaan publik, `docs/18` §6) |
 | Paket peluncuran testnet (runbook) | ✅ Siap | `docs/18`: runbook seed/validator/faucet/BlackScan + port/firewall + daftar prasyarat publik P1–P7 |
-| Komunikasi publik (pengumuman testnet) | 🔴 Diblokir | Butuh persetujuan eksplisit pemilik (aturan misi: pengumuman resmi wajib persetujuan) |
+| Komunikasi publik (pengumuman testnet) | 🔄 Dikerjakan | **Draft selesai Sesi 10** (`docs/20`, ID + EN) — DRAFT, BELUM diposting; butuh persetujuan eksplisit pemilik + tanggal buka + alamat seed publik |
+| Paket publik testnet | ✅ Siap | Sesi 10: `repo/testnet/` (genesis + README cara bergabung + `seeds.md` jujur) — publik di GitHub |
 
 ## 5. Blokir — keputusan pemilik yang MASIH TERBUKA (revisi Sesi 7)
 
@@ -79,17 +83,18 @@ dibuka sebelum blokir A dan C selesai; blokir B tidak menghalangi
 testnet (bisa dibuka dengan plafon ~89 TPS yang jujur) tetapi
 menghalangi pekerjaan performa Fase 1.
 
-## 6. Ringkasan kesiapan (revisi Sesi 8)
+## 6. Ringkasan kesiapan (revisi Sesi 10)
 
-- **Siap:** 13 item · **Dikerjakan/sebagian:** 6 item ·
-  **Belum dimulai:** 8 item · **Diblokir komunikasi:** 1 item
-  (pengumuman) · **Blokir konkret pemilik:** 4 item
-  (A alamat vesting, B anggaran hardware, C keputusan genesis final +
-  tanggal buka, D pengumuman).
-- **Kesimpulan jujur:** testnet chain-nya SUDAH TERBUKTI BERJALAN
-  (rehearsal 4 validator: sinkron, transfer EVM, liveness 3/4), tetapi
-  testnet PUBLIK belum bisa dibuka hari ini. Yang kurang bukan lagi
-  bukti teknis chain — melainkan server + IP publik + domain (P1/P2),
-  faucet + BlackScan yang live (P5), monitoring + rencana insiden (P6),
-  dan keputusan pemilik A/C/D. Keputusan desain #1/#2/#3 sudah
-  diputuskan (Sesi 7); genesis draft sudah ada dan teruji (Sesi 8).
+- **Siap:** 14 item · **Dikerjakan/sebagian:** 7 item ·
+  **Belum dimulai:** 7 item · **Diblokir komunikasi:** 0 item (draft
+  pengumuman sudah ada, menunggu persetujuan) · **Blokir konkret
+  pemilik:** 4 item (A alamat vesting, B anggaran hardware/server+domain,
+  C keputusan genesis final + tanggal buka, D persetujuan pengumuman).
+- **Kesimpulan jujur:** **paket testnet publik TERBUKA** (genesis +
+  panduan + seed list jujur + draft pengumuman), dan chain-nya SUDAH
+  TERBUKTI BERJALAN (rehearsal 4 validator: sinkron height 472, transfer
+  EVM, liveness 3/4). Tetapi **testnet yang bisa diakses internet BELUM
+  ADA** — yang kurang: server + IP publik + domain (P1/P2), faucet +
+  BlackScan yang live (P5), monitoring + rencana insiden (P6), dan
+  keputusan pemilik A/C/D. Status yang benar hari ini: "paket publik
+  terbuka, jaringan live masih lokal".

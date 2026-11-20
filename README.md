@@ -5,9 +5,16 @@
 **Independent, secure, scalable EVM-compatible Hybrid Layer 1 blockchain.**
 Native coin: **BKC** — max supply 1,000,000,000 BKC (95% community / 5% team, 12-month vesting).
 
-> **Status jujur (20 Nov 2026):** Proyek dalam tahap Month 1 — riset & desain.
-> Testnet dan mainnet **BELUM diluncurkan**. Belum ada node yang berjalan.
-> Target 100.000 TPS adalah **target jangka panjang, bukan hasil terukur**.
+> **Status jujur (20 Nov 2026):** Month 1 SELESAI dan terbukti. EVM live
+> (chain ID 20261120, denom abkc), testnet rehearsal 4 validator berjalan
+> dan teruji (sinkron, transfer EVM, liveness 3/4 — lihat
+> `docs/17-testnet-multivalidator.md`). **Paket testnet publik TERBUKA**
+> di [`testnet/`](testnet/) — genesis, panduan bergabung, dan daftar seed.
+> Tetapi jaringan yang berjalan saat ini **masih lokal (127.0.0.1)**:
+> belum ada endpoint publik, seed publik, atau faucet yang live.
+> Mainnet **BELUM diluncurkan**. Target 100.000 TPS adalah
+> **target jangka panjang, bukan hasil terukur** (terukur hari ini:
+> ~89 TPS sustained di devnet 1 validator).
 
 ## 🕹️ Pac-Man — jalan-jalan terus
 
