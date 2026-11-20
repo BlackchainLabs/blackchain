@@ -186,11 +186,86 @@ footer li a:hover{color:var(--gold)}
 .foot-bottom{border-top:1px solid var(--line);margin-top:36px;padding-top:20px;display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;font-size:13px;color:var(--ink3)}
 .warn{background:var(--amber-bg);border:1px solid var(--gold-line);border-radius:14px;padding:16px 18px;font-size:14px;color:var(--ink);display:flex;gap:12px}
 .warn b{color:var(--amber)}
+
+/* ===== POLISH — smooth & professional ===== */
+::selection{background:var(--gold);color:#141005}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px}
+h1,h2{text-wrap:balance}
+section[id],.hero{scroll-margin-top:78px}
+.hstat .v,.spec .v,.legend .pct{font-variant-numeric:tabular-nums}
+
+/* scroll progress */
+#scrollProgress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--gold-strong),var(--gold));z-index:80;transition:width .12s linear}
+
+/* header elevation on scroll */
+header{transition:box-shadow .3s ease}
+header.scrolled{box-shadow:0 12px 32px rgba(20,19,16,.13)}
+@media (prefers-color-scheme: dark){ header.scrolled{box-shadow:0 12px 32px rgba(0,0,0,.55)} }
+
+/* nav links */
+.navlinks a{transition:color .2s ease,background .2s ease}
+.navlinks a:hover{box-shadow:inset 0 -2px 0 var(--gold)}
+
+/* buttons */
+.btn{transition:transform .18s ease,border-color .2s ease,background .2s ease,box-shadow .25s ease}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(1px)}
+.btn.gold:hover{box-shadow:0 10px 24px rgba(184,134,11,.32)}
+.btn.on-dark:hover{border-color:rgba(233,180,76,.7);background:rgba(233,180,76,.1)}
+
+/* cards & domain tiles */
+.card{transition:transform .35s cubic-bezier(.22,.61,.36,1),box-shadow .35s ease,border-color .35s ease}
+.card:hover{transform:translateY(-4px);border-color:var(--gold-line);box-shadow:0 26px 54px rgba(20,19,16,.13)}
+@media (prefers-color-scheme: dark){ .card:hover{box-shadow:0 26px 54px rgba(0,0,0,.6)} }
+.dom{transition:transform .3s cubic-bezier(.22,.61,.36,1),box-shadow .3s ease,border-color .3s ease}
+a.dom:hover,.dom:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.snap tr{transition:background .2s ease}
+.snap tbody tr:hover td{background:var(--surface2)}
+details{transition:border-color .25s ease}
+details:hover{border-color:var(--gold-line)}
+details summary{transition:color .2s ease}
+details summary:hover{color:var(--gold-strong)}
+footer li a{transition:color .2s ease,transform .2s ease}
+footer li a:hover{transform:translateX(3px)}
+
+/* hero motion */
+.hero img.bg{animation:heroZoom 26s ease-in-out infinite alternate;will-change:transform}
+@keyframes heroZoom{from{transform:scale(1)}to{transform:scale(1.07)}}
+.hero .wrap>*{animation:rise .85s cubic-bezier(.22,.61,.36,1) both}
+.hero .wrap>*:nth-child(2){animation-delay:.09s}
+.hero .wrap>*:nth-child(3){animation-delay:.18s}
+.hero .wrap>*:nth-child(4){animation-delay:.27s}
+.hero .wrap>*:nth-child(5){animation-delay:.38s}
+@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.domain-pill .dot{animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,.5)}50%{box-shadow:0 0 0 7px rgba(74,222,128,0)}}
+
+/* scroll reveal (class added by JS only — no-JS keeps content visible) */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s cubic-bezier(.22,.61,.36,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* tokenomics animation */
+.bar i{transition:width 1.15s cubic-bezier(.22,.61,.36,1)}
+.donut-box svg circle.seg{transition:stroke-dasharray 1.35s cubic-bezier(.22,.61,.36,1)}
+
+/* back to top — always visible so it is reachable on touch devices */
+.to-top{position:fixed;right:20px;bottom:20px;width:46px;height:46px;border-radius:50%;border:1px solid var(--gold-line);background:var(--surface);color:var(--gold-strong);font-size:19px;font-weight:700;cursor:pointer;box-shadow:var(--shadow);transition:transform .2s ease,border-color .2s ease,background .2s ease;z-index:70;display:grid;place-items:center}
+.to-top:hover{border-color:var(--gold);transform:translateY(-2px)}
+@media (prefers-reduced-motion: reduce){
+  .reveal{opacity:1;transform:none}
+  .hero img.bg,.hero .wrap>*,.domain-pill .dot{animation:none!important}
+  .card,.dom,.btn,.to-top,.reveal,.bar i,.donut-box svg circle.seg{transition:none!important}
+}
+@media print{
+  .reveal{opacity:1!important;transform:none!important}
+  .to-top,#scrollProgress{display:none!important}
+}
 </style>
 </head>
 <body>
+<div id="scrollProgress" aria-hidden="true"></div>
 
-<header>
+<header id="siteHeader">
   <div class="wrap nav">
     <a class="brand" href="#top" aria-label="BLACKCHAIN — by BlackchainLabs">
       <span class="cube">◆</span>
@@ -335,8 +410,8 @@ footer li a:hover{color:var(--gold)}
       <div class="donut-box">
         <svg width="230" height="230" viewBox="0 0 230 230" role="img" aria-label="Donat alokasi BKC: 95 persen komunitas, 5 persen tim">
           <circle cx="115" cy="115" r="88" fill="none" stroke="var(--line)" stroke-width="30"/>
-          <circle cx="115" cy="115" r="88" fill="none" stroke="#e9b44c" stroke-width="30" stroke-dasharray="525.6 552.9" transform="rotate(-90 115 115)"/>
-          <circle cx="115" cy="115" r="88" fill="none" stroke="#57534a" stroke-width="30" stroke-dasharray="27.6 552.9" stroke-dashoffset="-525.6" transform="rotate(-90 115 115)"/>
+          <circle class="seg" cx="115" cy="115" r="88" fill="none" stroke="#e9b44c" stroke-width="30" stroke-dasharray="525.6 552.9" data-dash="525.6 552.9" transform="rotate(-90 115 115)"/>
+          <circle class="seg" cx="115" cy="115" r="88" fill="none" stroke="#57534a" stroke-width="30" stroke-dasharray="27.6 552.9" data-dash="27.6 552.9" stroke-dashoffset="-525.6" transform="rotate(-90 115 115)"/>
           <text x="115" y="108" text-anchor="middle" font-family="Sora,sans-serif" font-weight="800" font-size="27" fill="var(--ink)">1 Miliar</text>
           <text x="115" y="134" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12.5" fill="var(--ink3)">BKC · MAX SUPPLY</text>
         </svg>
@@ -511,6 +586,7 @@ footer li a:hover{color:var(--gold)}
   </div>
 </footer>
 
+<button class="to-top" id="toTop" type="button" aria-label="Kembali ke atas">↑</button>
 <div class="toast" id="toast" role="status">Tersalin ✓</div>
 
 <script>
@@ -563,6 +639,77 @@ footer li a:hover{color:var(--gold)}
       showToast('Wallet tidak terdeteksi — pakai setup manual');
     }
   });
+
+  /* ===== smooth polish: header shadow, progress, back-to-top ===== */
+  var header=document.getElementById('siteHeader'),
+      progress=document.getElementById('scrollProgress'),
+      toTop=document.getElementById('toTop'),
+      ticking=false;
+  function onScroll(){
+    var y=window.scrollY||window.pageYOffset;
+    header.classList.toggle('scrolled',y>10);
+    toTop.classList.toggle('show',y>620);
+    var h=document.documentElement.scrollHeight-window.innerHeight;
+    progress.style.width=(h>0?(y/h)*100:0)+'%';
+    ticking=false;
+  }
+  window.addEventListener('scroll',function(){
+    if(!ticking){ ticking=true; window.requestAnimationFrame(onScroll); }
+  },{passive:true});
+  onScroll();
+  toTop.addEventListener('click',function(){ window.scrollTo({top:0,behavior:'smooth'}); });
+
+  /* ===== scroll reveal + tokenomics animation (fail-safe) ===== */
+  var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduced && 'IntersectionObserver' in window){
+    var targets=document.querySelectorAll('.sec-head,.card,.snap,.dom,.tl,.donut-box,details,.codebox,.warn');
+    function revealEl(el){
+      if(!el.classList.contains('reveal')) return;
+      el.classList.add('in');
+      setTimeout(function(){ el.classList.remove('reveal','in'); el.style.transitionDelay=''; },1000);
+    }
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ revealEl(e.target); io.unobserve(e.target); }
+      });
+    },{threshold:0,rootMargin:'0px 0px 12% 0px'});
+    targets.forEach(function(el){
+      el.classList.add('reveal');
+      var parent=el.parentElement;
+      if(parent && (parent.classList.contains('grid3')||parent.classList.contains('grid2')||parent.classList.contains('dom-grid'))){
+        var idx=Array.prototype.indexOf.call(parent.children,el);
+        el.style.transitionDelay=Math.min(idx*80,240)+'ms';
+      }
+      io.observe(el);
+    });
+
+    /* bars + donut: grow when tokenomics scrolls into view */
+    var bars=document.querySelectorAll('.bar i');
+    bars.forEach(function(b){ b.dataset.w=b.style.width; b.style.width='0%'; });
+    var segs=document.querySelectorAll('.donut-box circle.seg');
+    segs.forEach(function(c){ c.setAttribute('stroke-dasharray','0 552.9'); });
+    var tokDone=false;
+    function animateTok(){
+      if(tokDone) return; tokDone=true;
+      bars.forEach(function(b){ b.style.width=b.dataset.w; });
+      segs.forEach(function(c){ c.setAttribute('stroke-dasharray',c.getAttribute('data-dash')); });
+    }
+    var tokSec=document.getElementById('tokenomics');
+    if(tokSec){
+      var io2=new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ animateTok(); io2.disconnect(); } });
+      },{threshold:0,rootMargin:'0px 0px 12% 0px'});
+      io2.observe(tokSec);
+    }
+
+    /* Fail-safe: whatever the observer never reaches (full-page capture,
+       print, fast scroll) is revealed/restored after a short delay. */
+    setTimeout(function(){
+      targets.forEach(revealEl);
+      animateTok();
+      io.disconnect();
+    },1400);
+  }
 })();
 </script>
 </body>
